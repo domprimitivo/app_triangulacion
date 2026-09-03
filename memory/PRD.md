@@ -102,3 +102,27 @@ intacto el resto de funciones. Almacenamiento de archivos en disco local (nunca 
 - P2: Pantalla de configuración inicial en React (hoy el sistema no está "configurado",
   por eso el embudo RAG pide configuración). El flujo real vive en el exe Flutter.
 - P2: Descarga directa del paquete/archivos del sistema comprimido desde /archivos.
+
+## SEGUNDO PRODUCTO — Motor Empresa · Elemento de Ciberseguridad (GSL) — DISEÑO (2026-06)
+> Estado: **DEFINIDO, NO CONSTRUIDO**. Detalle completo (endpoints + flujo de uso) en
+> `/app/memory/segundo_producto_diseno.md`.
+
+- **Alcance:** solo las **6 empresas** (no el palenque demo). Comparten el **mismo Aprendiz de
+  logística**. El **Elemento de Ciberseguridad reemplaza al de Habitabilidad**; el Elemento de
+  Claridad (cucurucho+agentes) sigue universal.
+- **4 herramientas GSL** (analizadas de los notebooks, se reconstruyen nativas en React/FastAPI
+  local, sin gradio/pandas/plotly/networkx; el `demo.launch` de cada Gradio → una pantalla React):
+  1. **Modo 1 — Observación Pasiva:** solo observa; manifold 8D + disonancia + reporte bimestral;
+     ingesta SIEM (Chronicle/Splunk/Sentinel/CEF/CSV).
+  2. **Modo 2 — Respuesta Adaptativa:** consume Modo 1; PolicyAdapter + ejecución por nivel (0-3)
+     + override humano + **registro forense inmutable** (ForensicRecord sha256) = lista rastreable.
+  3. **Capa Administrativa:** manifold de intenciones IAM (AD/Azure/auditd/genérico); autoprotección
+     del GSL (detecta ataques al propio sistema); emite `admin_anomaly` al Modo 2.
+  4. **Capa de Movimiento:** badges/espacios con tokens anónimos (HMAC, sal bimestral) + resolución
+     de identidad con **doble autorización**; emite `movement_anomaly` al Modo 2.
+- **Ingesta dual por herramienta seleccionada:** (a) desde el **embudo** (cucurucho) o
+  (b) desde **API/webhook** externo del cliente. Contrato: `POST /api/ciber/{herramienta}/ingesta`.
+- **Contrato común:** manifold 8D → disonancia → payload → PolicyAdapter (Modo 2). Artefactos
+  guardados COMPRIMIDOS (códec MOCG). Bitácora del Aprendiz: `/api/ciber/aprendiz/*`.
+- **Pendiente antes de construir:** orden de construcción (¿Modo 1 primero?), alcance de gráficas
+  (MVP vs completo), formato de config por empresa. Ver §8 del documento de diseño.
