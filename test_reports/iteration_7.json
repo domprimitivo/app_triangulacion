@@ -1,0 +1,22 @@
+{
+  "summary": "Full backend + frontend testing of the new Ciberseguridad Modo 1 (Observación Pasiva) product. 9/9 pytest tests passed covering /api/ciber/herramientas, /api/ciber/dominios, /api/ciber/modo1/config (valid + 404), /api/ciber/modo1/analizar (embudo demo, api_webhook Splunk payload, invalid domain 400), and /api/ciber/modo1/historial. Frontend /ciberseguridad renders 4 tools, 6 empresas selector, embudo/api_webhook toggle. 'Ejecutar observación pasiva' produces the result block with all data-testid subcomponents (metricas, tendencia-svg, heatmap, top-ventanas, reporte). API/webhook flow accepts JSON payload and returns results. Selecting Modo 2 shows the 'Próximamente' notice.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_ciber_modo1.py",
+    "/app/test_reports/pytest/ciber_modo1.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py is now ~1950 lines — recommend splitting the ciber router into its own module (routers/ciber.py) to keep <700 lines per file.",
+    "The dead loop 'for d in empresas: d = d  # noqa' at ciber_dominios can be removed (no effect).",
+    "Numpy RuntimeWarnings from the MOCG codec (cov with 1 event) are benign but noisy; consider suppressing with np.errstate in compresion_geometrica.",
+    "info_config hardcodes formatos_soportados; consider centralizing the list next to parse_siem dispatch to avoid drift."
+  ],
+  "updated_files": ["/app/backend/tests/test_ciber_modo1.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "MOCG memoria entries were created under /app/backend/flujo/ciber_memoria/dom_hotel_v1/ from analizar calls (test artifacts).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Ciber Modo 1 is fully green. Regression suite lives at /app/backend/tests/test_ciber_modo1.py. Endpoints: /api/ciber/{herramientas,dominios,modo1/config,modo1/analizar,modo1/historial/{domain_id}}. Frontend route /ciberseguridad with component CiberModo1.jsx uses testids ciber-*. Demo embudo (no files) produces synthetic deterministic data with seed."
+}

@@ -126,3 +126,26 @@ intacto el resto de funciones. Almacenamiento de archivos en disco local (nunca 
   guardados COMPRIMIDOS (códec MOCG). Bitácora del Aprendiz: `/api/ciber/aprendiz/*`.
 - **Pendiente antes de construir:** orden de construcción (¿Modo 1 primero?), alcance de gráficas
   (MVP vs completo), formato de config por empresa. Ver §8 del documento de diseño.
+
+### CONSTRUIDO — Herramienta A: GSL Modo 1 (Observación Pasiva) (2026-06)
+> Estado: **IMPLEMENTADO Y TESTEADO 100%** (backend + frontend). iteration_7.json.
+- Motor `backend/ciber_modo1.py` (numpy puro, sin pandas/plotly/gradio): parsers SIEM
+  (Chronicle UDM · Splunk · Sentinel · CEF · CSV), generador sintético demo, manifold de
+  firma 8D por extremo, disonancia ponderada por ventana temporal (2h), reporte bimestral,
+  memoria comprimida con códec MOCG.
+- **Ingesta dual** (decisión del usuario): `fuente=embudo` (archivos del cucurucho; sin archivos →
+  operación demo sintética por config) o `fuente=api_webhook` (payload SIEM inline JSON/CEF).
+- **Config: un JSON por dominio** en `backend/flujo/ciber/{domain_id}.json` (6 empresas, temáticas
+  por sector: users/assets/nodes/thresholds). Palenque demo EXCLUIDO.
+- **Alcance dashboard (valor vs peso, decidido):** tarjetas de métricas, tendencia bimestral (línea
+  SVG), mapa de calor por extremo, top-20 ventanas (tabla), reporte bimestral (texto). Sin gráficas
+  pesadas sin datos nuevos.
+- Endpoints: `GET /api/ciber/herramientas` (4 opciones; modo1 activo, resto "próximamente"),
+  `GET /api/ciber/dominios` (6 empresas), `GET /api/ciber/modo1/config?dominio=`,
+  `POST /api/ciber/modo1/analizar` (Form: domain_id, fuente, payload?, seed, files[]),
+  `GET /api/ciber/modo1/historial/{domain_id}`.
+- Frontend `frontend/src/components/CiberModo1.jsx`, ruta `/ciberseguridad`. Selector de 4
+  herramientas + empresa + toggle de ingesta. testids `ciber-*`. Regresión:
+  `backend/tests/test_ciber_modo1.py`.
+- **Próximo:** Modo 2 (Respuesta Adaptativa: PolicyAdapter + acciones por nivel + registro
+  forense = lista rastreable del Aprendiz). Luego Capa Administrativa y Capa de Movimiento.

@@ -1806,6 +1806,91 @@ async def flujo_historial(domain_id: str):
     return _listar_memoria(domain_id)
 
 
+# ─── Elemento de Ciberseguridad (Segundo Producto) ──────────────────────────
+# Herramienta A: GSL Modo 1 (Observación Pasiva). Aplica SOLO a las 6 empresas.
+
+from ciber_modo1 import (
+    ejecutar_modo1 as _ciber_modo1_ejecutar,
+    info_config as _ciber_modo1_info,
+    listar_memoria as _ciber_modo1_memoria,
+    DOMINIOS_EMPRESARIALES as _CIBER_DOMS,
+)
+
+CIBER_HERRAMIENTAS = [
+    {"id": "modo1", "nombre": "Modo 1 — Observación Pasiva",
+     "descripcion": "Solo observa: manifold geométrico + disonancia + reporte bimestral.",
+     "icono": "Eye", "disponible": True},
+    {"id": "modo2", "nombre": "Modo 2 — Respuesta Adaptativa",
+     "descripcion": "PolicyAdapter + acciones por nivel + registro forense.",
+     "icono": "ShieldCheck", "disponible": False},
+    {"id": "administrativa", "nombre": "Capa Administrativa",
+     "descripcion": "Manifold de intenciones IAM (AD/Azure/auditd) + autoprotección.",
+     "icono": "KeyRound", "disponible": False},
+    {"id": "movimiento", "nombre": "Capa de Movimiento",
+     "descripcion": "Badges y espacios con privacidad y autorización dual.",
+     "icono": "DoorOpen", "disponible": False},
+]
+
+
+@api_router.get("/ciber/herramientas")
+async def ciber_herramientas():
+    """Las 4 herramientas GSL disponibles como opciones (Modo 1 activo)."""
+    return {"herramientas": CIBER_HERRAMIENTAS}
+
+
+@api_router.get("/ciber/dominios")
+async def ciber_dominios():
+    """Las 6 empresas (el palenque demo NO usa el motor de ciberseguridad)."""
+    empresas = [d for d in DOMINIOS_EMPRESAS]
+    ref = {"clinica": "dom_clinica_v1", "hotel": "dom_hotel_v1",
+           "restaurante": "dom_restaurante_v1", "retail": "dom_retail_v1",
+           "fabrica": "dom_fabrica_v1", "logistica": "dom_logistica_v1"}
+    return {"dominios": [{"domain_id": ref[d["id"]], "id": d["id"],
+                          "nombre": d["nombre"], "icono": d["icono"]}
+                         for d in empresas if d["id"] in ref]}
+
+
+@api_router.get("/ciber/modo1/config")
+async def ciber_modo1_config(dominio: str):
+    try:
+        return _ciber_modo1_info(dominio)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@api_router.post("/ciber/modo1/analizar")
+async def ciber_modo1_analizar(
+    domain_id: str = Form(...),
+    fuente: str = Form("embudo"),           # 'embudo' | 'api_webhook'
+    payload: Optional[str] = Form(None),    # JSON/CEF string (fuente=api_webhook)
+    seed: int = Form(42),
+    files: List[UploadFile] = File(default=[]),
+):
+    """
+    Ejecuta el Modo 1 (observación pasiva) para una de las 6 empresas.
+    Ingesta dual: 'embudo' (archivos del cucurucho) o 'api_webhook' (payload SIEM).
+    """
+    archivos = [{"nombre": f.filename, "datos": await f.read()} for f in (files or [])]
+    payload_data = None
+    if fuente == "api_webhook" and payload:
+        try:
+            payload_data = json.loads(payload)
+        except Exception:
+            payload_data = payload  # puede ser CEF crudo
+    try:
+        return _ciber_modo1_ejecutar(domain_id, fuente=fuente, archivos=archivos,
+                                     payload=payload_data, seed=seed)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@api_router.get("/ciber/modo1/historial/{domain_id}")
+async def ciber_modo1_historial(domain_id: str):
+    return _ciber_modo1_memoria(domain_id)
+
+
 # ─── Registro del router y arranque ─────────────────────────────────────────
 
 app.include_router(api_router)

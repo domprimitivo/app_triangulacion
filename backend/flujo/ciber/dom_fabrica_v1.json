@@ -1,0 +1,95 @@
+{
+  "domain_id": "dom_fabrica_v1",
+  "org_name": "Manufactura / Fábrica",
+  "org_type": "dom_fabrica_v1",
+  "principal_id": "DOM_FABRICA_V1",
+  "bimester": "2026-B1",
+  "users": [
+    {
+      "id": "operador",
+      "name": "Operador Línea",
+      "role": "floor",
+      "typical_ips": [
+        "10.1.0.11"
+      ],
+      "typical_hours": [
+        6,
+        22
+      ]
+    },
+    {
+      "id": "supervisor",
+      "name": "Supervisor Turno",
+      "role": "ops",
+      "typical_ips": [
+        "10.2.0.12"
+      ],
+      "typical_hours": [
+        6,
+        22
+      ]
+    },
+    {
+      "id": "ingeniero",
+      "name": "Ingeniero Planta",
+      "role": "admin",
+      "typical_ips": [
+        "10.3.0.13"
+      ],
+      "typical_hours": [
+        8,
+        19
+      ]
+    },
+    {
+      "id": "svc_scada",
+      "name": "Servicio SCADA",
+      "role": "service",
+      "typical_ips": [
+        "10.4.0.14"
+      ],
+      "typical_hours": [
+        0,
+        23
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "scada",
+      "name": "Sistema SCADA",
+      "sensitivity": "high"
+    },
+    {
+      "id": "mes",
+      "name": "MES Producción",
+      "sensitivity": "high"
+    },
+    {
+      "id": "calidad",
+      "name": "Control Calidad",
+      "sensitivity": "medium"
+    },
+    {
+      "id": "mantenimiento",
+      "name": "Mantenimiento",
+      "sensitivity": "low"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "SIEM-001",
+      "node_type": "siem",
+      "siem_platform": "cef",
+      "deployment_level": 0,
+      "api_endpoint": "",
+      "api_key": "",
+      "webhook_url": "",
+      "poll_interval_min": 30
+    }
+  ],
+  "thresholds": {
+    "geo_dissonance_alert": 0.25,
+    "geo_dissonance_report": 0.4
+  }
+}
