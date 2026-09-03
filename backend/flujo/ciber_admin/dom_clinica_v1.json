@@ -1,0 +1,296 @@
+[
+  {
+    "record_id": "AR-172B6110",
+    "timestamp": "2025-01-24T11:56:00+00:00",
+    "actor_id": "enfermeria",
+    "actor_role": "clinical",
+    "dissonance": 0.3558,
+    "reasons": [
+      "Secuencia lógica de permisos violada"
+    ],
+    "dims": {
+      "off_hours": 0.0,
+      "critical": 0.5,
+      "seq_viol": 0.5,
+      "priv_dur": 0.0,
+      "obj_divers": 0.1,
+      "gsl_touch": 0.0,
+      "fail_rate": 0.0,
+      "centrality": 0.188
+    },
+    "trigger_event": "permission_granted",
+    "trigger_object": "obj_008",
+    "gsl_self_attack": false,
+    "action": "report_admin_anomaly",
+    "override_token": "5b95aef8-787",
+    "sha256": "ff70db8c242ebf09"
+  },
+  {
+    "record_id": "AR-E790A7C9",
+    "timestamp": "2025-02-14T20:31:00+00:00",
+    "actor_id": "enfermeria",
+    "actor_role": "clinical",
+    "dissonance": 0.2829,
+    "reasons": [
+      "2 eventos fuera de ventana horaria"
+    ],
+    "dims": {
+      "off_hours": 1.0,
+      "critical": 0.5,
+      "seq_viol": 0.0,
+      "priv_dur": 0.0,
+      "obj_divers": 0.1,
+      "gsl_touch": 0.0,
+      "fail_rate": 0.0,
+      "centrality": 0.188
+    },
+    "trigger_event": "role_assigned",
+    "trigger_object": "obj_015",
+    "gsl_self_attack": false,
+    "action": "report_admin_anomaly",
+    "override_token": "f494a192-852",
+    "sha256": "d611d4f3c1a07709"
+  },
+  {
+    "record_id": "AR-BBFB1E2F",
+    "timestamp": "2025-02-14T20:31:00+00:00",
+    "actor_id": "enfermeria",
+    "actor_role": "clinical",
+    "dissonance": 0.3196,
+    "reasons": [
+      "3 eventos fuera de ventana horaria"
+    ],
+    "dims": {
+      "off_hours": 1.0,
+      "critical": 0.333,
+      "seq_viol": 0.0,
+      "priv_dur": 0.0,
+      "obj_divers": 0.15,
+      "gsl_touch": 0.0,
+      "fail_rate": 0.0,
+      "centrality": 0.188
+    },
+    "trigger_event": "role_assigned",
+    "trigger_object": "obj_015",
+    "gsl_self_attack": false,
+    "action": "report_admin_anomaly",
+    "override_token": "965ffb00-14c",
+    "sha256": "779c0184eb5b2618"
+  },
+  {
+    "record_id": "AR-B2D93948",
+    "timestamp": "2025-02-14T20:31:00+00:00",
+    "actor_id": "enfermeria",
+    "actor_role": "clinical",
+    "dissonance": 0.3196,
+    "reasons": [
+      "3 eventos fuera de ventana horaria"
+    ],
+    "dims": {
+      "off_hours": 1.0,
+      "critical": 0.333,
+      "seq_viol": 0.0,
+      "priv_dur": 0.0,
+      "obj_divers": 0.15,
+      "gsl_touch": 0.0,
+      "fail_rate": 0.0,
+      "centrality": 0.188
+    },
+    "trigger_event": "role_assigned",
+    "trigger_object": "obj_015",
+    "gsl_self_attack": false,
+    "action": "report_admin_anomaly",
+    "override_token": "7c57a30f-fe4",
+    "sha256": "e085e2e949ef5154"
+  },
+  {
+    "record_id": "AR-7519E370",
+    "timestamp": "2025-02-19T03:00:00+00:00",
+    "actor_id": "medico",
+    "actor_role": "clinical",
+    "dissonance": 1.0,
+    "reasons": [
+      "8 eventos fuera de ventana horaria",
+      "Secuencia lógica de permisos violada",
+      "⚠️ 3 eventos sobre recursos GSL protegidos"
+    ],
+    "dims": {
+      "off_hours": 1.0,
+      "critical": 0.6,
+      "seq_viol": 0.2,
+      "priv_dur": 0.0,
+      "obj_divers": 0.4,
+      "gsl_touch": 0.3,
+      "fail_rate": 0.0,
+      "centrality": 0.438
+    },
+    "trigger_event": "admin_role_granted",
+    "trigger_object": "compromised_user",
+    "gsl_self_attack": true,
+    "action": "alert_gsl_self_attack",
+    "override_token": "322f59d7-8c0",
+    "sha256": "ac088051ee625334"
+  },
+  {
+    "record_id": "AR-BFF94EB9",
+    "timestamp": "2025-02-19T03:00:00+00:00",
+    "actor_id": "medico",
+    "actor_role": "clinical",
+    "dissonance": 1.0,
+    "reasons": [
+      "8 eventos fuera de ventana horaria",
+      "Secuencia lógica de permisos violada",
+      "⚠️ 3 eventos sobre recursos GSL protegidos"
+    ],
+    "dims": {
+      "off_hours": 1.0,
+      "critical": 0.6,
+      "seq_viol": 0.2,
+      "priv_dur": 0.0,
+      "obj_divers": 0.4,
+      "gsl_touch": 0.3,
+      "fail_rate": 0.0,
+      "centrality": 0.438
+    },
+    "trigger_event": "admin_role_granted",
+    "trigger_object": "compromised_user",
+    "gsl_self_attack": true,
+    "action": "alert_gsl_self_attack",
+    "override_token": "a44ed712-710",
+    "sha256": "bb9550671f62318a"
+  },
+  {
+    "record_id": "AR-A1508100",
+    "timestamp": "2025-02-19T03:00:00+00:00",
+    "actor_id": "medico",
+    "actor_role": "clinical",
+    "dissonance": 1.0,
+    "reasons": [
+      "8 eventos fuera de ventana horaria",
+      "Secuencia lógica de permisos violada",
+      "⚠️ 3 eventos sobre recursos GSL protegidos"
+    ],
+    "dims": {
+      "off_hours": 1.0,
+      "critical": 0.7,
+      "seq_viol": 0.3,
+      "priv_dur": 0.0,
+      "obj_divers": 0.35,
+      "gsl_touch": 0.3,
+      "fail_rate": 0.0,
+      "centrality": 0.438
+    },
+    "trigger_event": "admin_role_granted",
+    "trigger_object": "compromised_user",
+    "gsl_self_attack": true,
+    "action": "alert_gsl_self_attack",
+    "override_token": "31a64d4e-2e8",
+    "sha256": "ff7761e332953ddc"
+  },
+  {
+    "record_id": "AR-7B9ED990",
+    "timestamp": "2025-02-19T03:00:00+00:00",
+    "actor_id": "medico",
+    "actor_role": "clinical",
+    "dissonance": 1.0,
+    "reasons": [
+      "8 eventos fuera de ventana horaria",
+      "Secuencia lógica de permisos violada",
+      "⚠️ 3 eventos sobre recursos GSL protegidos"
+    ],
+    "dims": {
+      "off_hours": 1.0,
+      "critical": 0.727,
+      "seq_viol": 0.273,
+      "priv_dur": 0.0,
+      "obj_divers": 0.4,
+      "gsl_touch": 0.273,
+      "fail_rate": 0.0,
+      "centrality": 0.438
+    },
+    "trigger_event": "admin_role_granted",
+    "trigger_object": "compromised_user",
+    "gsl_self_attack": true,
+    "action": "alert_gsl_self_attack",
+    "override_token": "8e136775-1e7",
+    "sha256": "18ce11010f036c32"
+  },
+  {
+    "record_id": "AR-6E5DF9DB",
+    "timestamp": "2025-02-23T07:41:00+00:00",
+    "actor_id": "medico",
+    "actor_role": "clinical",
+    "dissonance": 0.4931,
+    "reasons": [
+      "Secuencia lógica de permisos violada"
+    ],
+    "dims": {
+      "off_hours": 0.0,
+      "critical": 0.75,
+      "seq_viol": 0.5,
+      "priv_dur": 0.0,
+      "obj_divers": 0.2,
+      "gsl_touch": 0.0,
+      "fail_rate": 0.0,
+      "centrality": 0.438
+    },
+    "trigger_event": "sudo_session_start",
+    "trigger_object": "obj_001",
+    "gsl_self_attack": false,
+    "action": "report_admin_anomaly",
+    "override_token": "6e7d14e5-a60",
+    "sha256": "904f6d0b7d235012"
+  },
+  {
+    "record_id": "AR-1F80BF8D",
+    "timestamp": "2025-02-23T07:41:00+00:00",
+    "actor_id": "medico",
+    "actor_role": "clinical",
+    "dissonance": 0.4187,
+    "reasons": [
+      "Secuencia lógica de permisos violada"
+    ],
+    "dims": {
+      "off_hours": 0.0,
+      "critical": 0.6,
+      "seq_viol": 0.4,
+      "priv_dur": 0.0,
+      "obj_divers": 0.25,
+      "gsl_touch": 0.0,
+      "fail_rate": 0.0,
+      "centrality": 0.438
+    },
+    "trigger_event": "sudo_session_start",
+    "trigger_object": "obj_001",
+    "gsl_self_attack": false,
+    "action": "report_admin_anomaly",
+    "override_token": "4004610f-7cf",
+    "sha256": "d072eb26967ad28d"
+  },
+  {
+    "record_id": "AR-F731857E",
+    "timestamp": "2025-02-24T17:52:00+00:00",
+    "actor_id": "medico",
+    "actor_role": "clinical",
+    "dissonance": 0.3531,
+    "reasons": [
+      "Secuencia lógica de permisos violada"
+    ],
+    "dims": {
+      "off_hours": 0.0,
+      "critical": 0.5,
+      "seq_viol": 0.25,
+      "priv_dur": 0.0,
+      "obj_divers": 0.2,
+      "gsl_touch": 0.0,
+      "fail_rate": 0.0,
+      "centrality": 0.438
+    },
+    "trigger_event": "permission_granted",
+    "trigger_object": "obj_010",
+    "gsl_self_attack": false,
+    "action": "report_admin_anomaly",
+    "override_token": "203f8ea2-a20",
+    "sha256": "a0ec11be8db9f3a5"
+  }
+]

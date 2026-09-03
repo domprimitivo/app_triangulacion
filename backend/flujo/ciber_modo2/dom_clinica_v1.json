@@ -1,0 +1,745 @@
+{
+  "weights": {
+    "reduce_write_permissions": {
+      "low": 1.0,
+      "med": 0.23099999999999998,
+      "high": 0.2,
+      "critical": 0.1
+    },
+    "increase_validation_weight": {
+      "low": 1.0,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 0.1
+    },
+    "snapshot_state": {
+      "low": 1.0,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 0.1
+    },
+    "isolate_session": {
+      "low": 0.1,
+      "med": 0.3,
+      "high": 1.0,
+      "critical": 0.1
+    },
+    "terminate_session": {
+      "low": 0.1,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 1.0
+    },
+    "revoke_credentials": {
+      "low": 0.1,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 1.0
+    },
+    "freeze_affected_assets": {
+      "low": 0.1,
+      "med": 0.3,
+      "high": 1.0,
+      "critical": 0.1
+    },
+    "generate_incident_report": {
+      "low": 1.0,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 0.1
+    }
+  },
+  "history": [
+    {
+      "timestamp": "2026-09-03T16:39:11.527030+00:00",
+      "action": "reduce_write_permissions",
+      "dissonance": 0.325,
+      "bucket": "med",
+      "confirmed": true,
+      "overridden_to": null
+    },
+    {
+      "timestamp": "2026-09-03T16:39:14.570329+00:00",
+      "action": "reduce_write_permissions",
+      "dissonance": 0.325,
+      "bucket": "med",
+      "confirmed": false,
+      "overridden_to": null
+    }
+  ],
+  "correction_rate": 0.5,
+  "forensic": [
+    {
+      "record_id": "FR-DFDB5E86",
+      "timestamp": "2026-09-03T16:39:14.674025+00:00",
+      "entity_id": "admin",
+      "dissonance": 0.325,
+      "action": "increase_validation_weight",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        },
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.231,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: increase_validation_weight sobre admin.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "566830c9-272",
+      "confirmed": false,
+      "sha256": "5823a39e03f89ad5"
+    },
+    {
+      "record_id": "FR-637BCCE3",
+      "timestamp": "2026-09-03T16:39:14.674061+00:00",
+      "entity_id": "medico",
+      "dissonance": 0.319,
+      "action": "increase_validation_weight",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        },
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.231,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: increase_validation_weight sobre medico.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "3ca3185e-afc",
+      "confirmed": false,
+      "sha256": "4457ad5feb3c7b9c"
+    },
+    {
+      "record_id": "FR-9C642F65",
+      "timestamp": "2026-09-03T16:39:14.674080+00:00",
+      "entity_id": "enfermeria",
+      "dissonance": 0.31,
+      "action": "increase_validation_weight",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        },
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.231,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: increase_validation_weight sobre enfermeria.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "47561a1c-84a",
+      "confirmed": false,
+      "sha256": "7c104dc2353d7ea2"
+    },
+    {
+      "record_id": "FR-CE275C2F",
+      "timestamp": "2026-09-03T16:39:11.623380+00:00",
+      "entity_id": "admin",
+      "dissonance": 0.325,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.33,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre admin.",
+      "override": true,
+      "override_by": "adminTest",
+      "override_action": "false_positive",
+      "override_ts": "2026-09-03T16:39:14.570307+00:00",
+      "override_token": "3f631c4c-a47",
+      "confirmed": false,
+      "sha256": "306ba91ff85d0164"
+    },
+    {
+      "record_id": "FR-7621499D",
+      "timestamp": "2026-09-03T16:39:11.623416+00:00",
+      "entity_id": "medico",
+      "dissonance": 0.319,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.33,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre medico.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "64aaa83f-528",
+      "confirmed": false,
+      "sha256": "28dd745b04602c7d"
+    },
+    {
+      "record_id": "FR-5B0742E5",
+      "timestamp": "2026-09-03T16:39:11.623434+00:00",
+      "entity_id": "enfermeria",
+      "dissonance": 0.31,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.33,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre enfermeria.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "82ce763a-df2",
+      "confirmed": false,
+      "sha256": "22c0c90111450c0c"
+    },
+    {
+      "record_id": "FR-49EE35C1",
+      "timestamp": "2026-09-03T16:39:11.296123+00:00",
+      "entity_id": "admin",
+      "dissonance": 0.325,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": true,
+      "execution_result": "[L0] Acción confirmada y ejecutada por adminTest: reduce_write_permissions.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "e8aeaf23-9c0",
+      "confirmed": true,
+      "sha256": "e44e5383cd4729d5"
+    },
+    {
+      "record_id": "FR-DE1EB309",
+      "timestamp": "2026-09-03T16:39:11.296157+00:00",
+      "entity_id": "medico",
+      "dissonance": 0.319,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre medico.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "ad0ea5dd-fc2",
+      "confirmed": false,
+      "sha256": "edd5e66472895843"
+    },
+    {
+      "record_id": "FR-75955172",
+      "timestamp": "2026-09-03T16:39:11.296177+00:00",
+      "entity_id": "enfermeria",
+      "dissonance": 0.31,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre enfermeria.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "eed99861-1d0",
+      "confirmed": false,
+      "sha256": "26b1f1668fbea942"
+    },
+    {
+      "record_id": "FR-85C8B96C",
+      "timestamp": "2026-09-03T16:36:15.601195+00:00",
+      "entity_id": "admin",
+      "dissonance": 0.325,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre admin.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "993376ed-769",
+      "confirmed": false,
+      "sha256": "e6f19b07e600088f"
+    },
+    {
+      "record_id": "FR-04C5F49D",
+      "timestamp": "2026-09-03T16:36:15.601232+00:00",
+      "entity_id": "medico",
+      "dissonance": 0.319,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre medico.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "7623e393-2ea",
+      "confirmed": false,
+      "sha256": "fc4a9cc8b3d3c67c"
+    },
+    {
+      "record_id": "FR-3DB63C06",
+      "timestamp": "2026-09-03T16:36:15.601252+00:00",
+      "entity_id": "enfermeria",
+      "dissonance": 0.31,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre enfermeria.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "4c223051-720",
+      "confirmed": false,
+      "sha256": "063c00fe60624508"
+    }
+  ]
+}

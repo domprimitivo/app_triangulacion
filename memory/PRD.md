@@ -149,3 +149,28 @@ intacto el resto de funciones. Almacenamiento de archivos en disco local (nunca 
   `backend/tests/test_ciber_modo1.py`.
 - **Próximo:** Modo 2 (Respuesta Adaptativa: PolicyAdapter + acciones por nivel + registro
   forense = lista rastreable del Aprendiz). Luego Capa Administrativa y Capa de Movimiento.
+
+### CONSTRUIDO — Herramientas B, C, D + Ingesta SIEM en vivo (2026-06)
+> Estado: **IMPLEMENTADO Y TESTEADO 100%** (backend 13/13 + frontend). iteration_8.json.
+> Regresión: `backend/tests/test_ciber_v2.py`. Las 4 herramientas GSL ya están activas.
+- **Modo 2 — Respuesta Adaptativa** (`ciber_modo2.py`): consume la disonancia del Modo 1;
+  `PolicyAdapter` (pesos por bucket, aprende), recomendación de acciones con nivel (0-3),
+  **registro forense inmutable** (sha256) = lista rastreable; override/confirmar humano con
+  señal de entrenamiento (correction_rate). Estado persistido por dominio en
+  `flujo/ciber_modo2/{domain}.json`. Endpoints `/api/ciber/modo2/{analizar,forense/{id},override,confirmar}`.
+- **Capa Administrativa** (`ciber_admin.py`): manifold IAM 8D (off_hours, critical, seq_viol,
+  priv_dur, obj_divers, gsl_touch, fail_rate, centrality); parsers AD/Azure/auditd/genérico;
+  **autoprotección GSL** (detecta auto-ataques al propio sistema, peso ×5). Forense por dominio.
+  Endpoints `/api/ciber/admin/{analizar,forense/{id}}`.
+- **Capa de Movimiento** (`ciber_movimiento.py`): tokens anónimos HMAC-SHA256 (sal bimestral),
+  firma badge 7D, detección de imposible-travel (Dijkstra sobre grafo del edificio), rol roto,
+  ocupación anómala; **resolución de identidad con doble autorización** (2 admins distintos).
+  Endpoints `/api/ciber/movimiento/{analizar,forense/{id},resolver-identidad}`.
+- **Ingesta SIEM en vivo** (`ciber_ingesta.py`): receptor **webhook** (push del nodo del cliente
+  → buffer JSONL local por dominio) + **poll** saliente (GET Nivel 1 con urllib stdlib) +
+  fuente `ingesta_live` en Modo 1/2 que consume el buffer. Endpoints
+  `/api/ciber/ingesta/{webhook/{id}(POST),buffer/{id}(GET/DELETE),poll/{id}(POST)}`.
+- **Frontend** unificado `CiberModo1.jsx` (`/ciberseguridad`): selector de las 4 herramientas;
+  Modo 1/2 con 3 fuentes (embudo/api_webhook/en vivo), Admin/Movimiento con 2; dashboards por
+  herramienta (forense con confirmar/override, autoataque GSL, ocupación, resolución dual).
+  Motores en Python+numpy puro (sin pandas/networkx/gradio), soberanos y locales.

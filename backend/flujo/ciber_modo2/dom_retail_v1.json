@@ -1,0 +1,289 @@
+{
+  "weights": {
+    "reduce_write_permissions": {
+      "low": 1.0,
+      "med": 0.33,
+      "high": 0.2,
+      "critical": 0.1
+    },
+    "increase_validation_weight": {
+      "low": 1.0,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 0.1
+    },
+    "snapshot_state": {
+      "low": 1.0,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 0.1
+    },
+    "isolate_session": {
+      "low": 0.1,
+      "med": 0.3,
+      "high": 1.0,
+      "critical": 0.1
+    },
+    "terminate_session": {
+      "low": 0.1,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 1.0
+    },
+    "revoke_credentials": {
+      "low": 0.1,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 1.0
+    },
+    "freeze_affected_assets": {
+      "low": 0.1,
+      "med": 0.3,
+      "high": 1.0,
+      "critical": 0.1
+    },
+    "generate_incident_report": {
+      "low": 1.0,
+      "med": 0.3,
+      "high": 0.2,
+      "critical": 0.1
+    }
+  },
+  "history": [
+    {
+      "timestamp": "2026-09-03T16:33:42.719699+00:00",
+      "action": "reduce_write_permissions",
+      "dissonance": 0.3,
+      "bucket": "med",
+      "confirmed": true,
+      "overridden_to": null
+    }
+  ],
+  "correction_rate": 0.0,
+  "forensic": [
+    {
+      "record_id": "FR-EB154446",
+      "timestamp": "2026-09-03T16:33:42.224301+00:00",
+      "entity_id": "vendedor",
+      "dissonance": 0.3,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": true,
+      "execution_result": "[L0] Acción confirmada y ejecutada por adm01: reduce_write_permissions.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "9b72054b-56a",
+      "confirmed": true,
+      "sha256": "0fcaae00aa2e5e5a"
+    },
+    {
+      "record_id": "FR-940F629B",
+      "timestamp": "2026-09-03T16:33:42.224339+00:00",
+      "entity_id": "gerente",
+      "dissonance": 0.291,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre gerente.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "f6793bb4-b00",
+      "confirmed": false,
+      "sha256": "307b17b9fd7620cc"
+    },
+    {
+      "record_id": "FR-8AC54321",
+      "timestamp": "2026-09-03T16:33:42.224360+00:00",
+      "entity_id": "cajero",
+      "dissonance": 0.279,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre cajero.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "aad9fb21-a65",
+      "confirmed": false,
+      "sha256": "237b9cb8cb09c33b"
+    },
+    {
+      "record_id": "FR-2F17D06F",
+      "timestamp": "2026-09-03T16:33:42.224379+00:00",
+      "entity_id": "svc_erp",
+      "dissonance": 0.267,
+      "action": "reduce_write_permissions",
+      "level": 0,
+      "level_label": "Nivel 0 — Recomendación (un click)",
+      "recomendaciones": [
+        {
+          "action": "reduce_write_permissions",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Reduce permisos de escritura"
+        },
+        {
+          "action": "increase_validation_weight",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": true,
+          "impact": "low",
+          "description": "Añade latencia de validación"
+        },
+        {
+          "action": "snapshot_state",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "low",
+          "description": "Copia inmutable del estado de activos"
+        },
+        {
+          "action": "generate_incident_report",
+          "score": 0.3,
+          "level": 0,
+          "level_label": "Nivel 0 — Recomendación (un click)",
+          "reversible": false,
+          "impact": "none",
+          "description": "Ensambla línea de tiempo forense"
+        }
+      ],
+      "executed": false,
+      "execution_result": "[L0] Recomendación pendiente: reduce_write_permissions sobre svc_erp.",
+      "override": false,
+      "override_by": "",
+      "override_action": "",
+      "override_ts": "",
+      "override_token": "73297a39-76f",
+      "confirmed": false,
+      "sha256": "d4c1abf8e6f2a6c0"
+    }
+  ]
+}

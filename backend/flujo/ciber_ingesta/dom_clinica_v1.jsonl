@@ -1,0 +1,2 @@
+{"_recibido": "2026-09-03T16:39:09.071824+00:00", "_fuente": "webhook", "evento": {"_time": "2025-01-15T10:00:00Z", "user": "u1", "EventCode": "USER_LOGIN", "action": "success"}}
+{"_recibido": "2026-09-03T16:39:09.071824+00:00", "_fuente": "webhook", "evento": {"_time": "2025-01-15T10:05:00Z", "user": "u2", "EventCode": "FILE_COPY", "action": "success"}}

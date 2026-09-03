@@ -471,6 +471,14 @@ def ejecutar_modo1(domain_id: str, fuente: str = "embudo",
         eventos = parse_siem(payload)
         streams.append({"label": "api_webhook", "events": _norm_events(eventos)})
         origen = "API / webhook (payload SIEM entregado)"
+    elif fuente == "ingesta_live":
+        from ciber_ingesta import leer_buffer
+        raw = leer_buffer(domain_id)
+        eventos = []
+        for ev in raw:
+            eventos.extend(parse_siem(ev))
+        streams.append({"label": "ingesta_live", "events": _norm_events(eventos)})
+        origen = f"Ingesta SIEM en vivo — {len(raw)} evento(s) del buffer del cliente"
     elif fuente == "embudo" and archivos:
         eventos = []
         for a in archivos:
