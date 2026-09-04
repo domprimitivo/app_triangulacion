@@ -1,0 +1,96 @@
+{
+  "dominio": "fabrica",
+  "_descripcion": "Dominio de INTEGRIDAD OPERATIVA (no de fraude). Triangulacion INTERNA (conservacion), no contra una coordenada externa de dinero. Centro de gravedad = production; gestion/calidad/mantenimiento son soporte y se leen contra la primaria.",
+  "primaria": "production",
+  "triangulacion": "interna_conservacion",
+  "nodos": {
+    "production": {
+      "tipo": "flujo",
+      "rol": "primaria",
+      "observables": ["unidades_producidas", "unidades_buenas", "capacidad", "horas_linea", "yield_calidad", "buffer_salud"],
+      "ancla": {
+        "primitivo": "saturacion",
+        "_descripcion": "x = que tan por encima de su capacidad corre la linea (carga / capacidad)",
+        "params": {"carga": "unidades_producidas", "capacidad": "capacidad", "div": 0.25, "peso": 1.0}
+      },
+      "avance": {
+        "_descripcion": "buenas por hora-linea; leer su DERIVADA (la desaceleracion precede a caida_linea)",
+        "numerador": "unidades_buenas", "denominador": "horas_linea"
+      },
+      "coordenada_y": {
+        "_descripcion": "y INTERNA = deficit de conservacion. y alto + x alto = se paga el throughput con deficit en calidad/buffer = pedir prestado al futuro (la deuda). x alto + y bajo = productividad genuina.",
+        "primitivo": "deficit_acoplado",
+        "params": {"senales": ["yield_calidad", "buffer_salud"], "esperado": 1.0, "div": 0.25},
+        "gamma": 0.7
+      }
+    },
+    "quality": {
+      "tipo": "flujo",
+      "rol": "soporte",
+      "observables": ["calidad_declarada", "tasa_falla_campo", "unidades_buenas", "unidades_producidas"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "_descripcion": "x = disonancia entre calidad DECLARADA (pasa inspeccion) y las FALLAS DE CAMPO. Ancla infalsificable: pasas la inspeccion, no el fallo en campo.",
+        "params": {"reportado": "calidad_declarada", "fisico_obs": "tasa_falla_campo", "fisico_factor": 1.0, "orientacion": "reportado_excede", "div": 0.20, "peso": 1.0}
+      },
+      "avance": {
+        "_descripcion": "yield = buenas / producidas",
+        "numerador": "unidades_buenas", "denominador": "unidades_producidas"
+      },
+      "coordenada_y": {
+        "_descripcion": "y INTERNA = presion de produccion. La deriva de calidad se explica por empujar la linea?",
+        "primitivo": "deficit_acoplado",
+        "params": {"senales": ["carga_relativa_produccion"], "esperado": 1.0, "div": 0.25},
+        "gamma": 0.7
+      }
+    },
+    "maintenance": {
+      "tipo": "flujo",
+      "rol": "soporte",
+      "observables": ["backlog_ordenes", "ordenes_cerradas", "estado_maquina"],
+      "ancla": {
+        "primitivo": "deuda_backlog",
+        "_descripcion": "x = deuda de mantenimiento (backlog vs cierre); estado_maquina (vibracion/prognostics) como ancla real",
+        "params": {"backlog": "backlog_ordenes", "cierre": "ordenes_cerradas", "div": 0.5, "peso": 0.8, "sec_obs": "estado_maquina", "sec_peso": 0.2}
+      },
+      "avance": {
+        "_descripcion": "cierre vs backlog / tendencia de MTBF",
+        "numerador": "ordenes_cerradas", "denominador": "backlog_ordenes"
+      },
+      "coordenada_y": {
+        "_descripcion": "y INTERNA = carga de produccion. La deuda de mantenimiento se explica por presion de la linea?",
+        "primitivo": "deficit_acoplado",
+        "params": {"senales": ["carga_relativa_produccion"], "esperado": 1.0, "div": 0.25},
+        "gamma": 0.7
+      }
+    },
+    "line_load": {
+      "tipo": "blanda",
+      "rol": "lider_rrhh",
+      "_descripcion": "Tension. Capa Fase 1: se lee sobre su DINAMICA (cuando cae la coherencia), orienta/reequilibra, NO califica. Indicador ADELANTADO de la cascada. No triangula a un valor.",
+      "observables": ["coherencia"],
+      "lectura": "dinamica_coherencia"
+    },
+    "quality_discipline": {
+      "tipo": "blanda",
+      "rol": "lider_rrhh",
+      "_descripcion": "Escucha / disciplina de calidad. Capa Fase 1, mismo tratamiento que line_load.",
+      "observables": ["coherencia"],
+      "lectura": "dinamica_coherencia"
+    },
+    "maintenance_coherence": {
+      "tipo": "blanda",
+      "rol": "lider_rrhh",
+      "_descripcion": "Telos compartido (coherencia de mantenimiento). Capa Fase 1, mismo tratamiento.",
+      "observables": ["coherencia"],
+      "lectura": "dinamica_coherencia"
+    }
+  },
+  "_primitivos_requeridos": {
+    "_descripcion": "Primitivos que este JSON selecciona. Los operativos (saturacion, deuda_backlog, deficit_acoplado) se agregan a la libreria del motor; disonancia_vs_fisico ya existe. El motor sigue ciego al dominio.",
+    "saturacion": "carga / capacidad, recortado a [0,1] por div",
+    "deuda_backlog": "backlog / (backlog + cierre), + termino secundario opcional (estado_maquina)",
+    "deficit_acoplado": "deficit medio de senales acopladas respecto a su esperado (y interna de conservacion)",
+    "disonancia_vs_fisico": "ya existe en conector.py"
+  }
+}

@@ -16,7 +16,7 @@ import { RegisterModal } from './components/RegisterModal';
 import { Footer } from './components/Footer';
 import { PantallaClaridad } from './components/PantallaClaridad';
 import { ArchivosEmbudo } from './components/ArchivosEmbudo';
-import { CiberModo1 } from './components/CiberModo1';
+import { Agora } from './components/Agora';
 import { trackEvent, EVENTS } from './lib/analytics';
 
 function Landing() {
@@ -73,7 +73,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/claridad" element={<PantallaClaridad />} />
         <Route path="/archivos" element={<ArchivosEmbudo />} />
-        <Route path="/ciberseguridad" element={<CiberModo1 />} />
+        <Route path="/agora" element={<Agora />} />
       </Routes>
     </BrowserRouter>
   );

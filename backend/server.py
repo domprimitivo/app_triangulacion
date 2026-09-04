@@ -1806,279 +1806,48 @@ async def flujo_historial(domain_id: str):
     return _listar_memoria(domain_id)
 
 
-# ─── Elemento de Ciberseguridad (Segundo Producto) ──────────────────────────
-# Herramienta A: GSL Modo 1 (Observación Pasiva). Aplica SOLO a las 6 empresas.
+# ─── El Ágora Unificado (Elemento de Habitabilidad · Retícula de Triangulación) ──
+# Un solo motor ciego al dominio. 7 dominios. Salida = las disonancias (plano x vs y).
 
-from ciber_modo1 import (
-    ejecutar_modo1 as _ciber_modo1_ejecutar,
-    info_config as _ciber_modo1_info,
-    listar_memoria as _ciber_modo1_memoria,
-    DOMINIOS_EMPRESARIALES as _CIBER_DOMS,
-)
-from ciber_modo2 import (
-    ejecutar_modo2 as _ciber_modo2_ejecutar,
-    override as _ciber_modo2_override,
-    confirmar as _ciber_modo2_confirmar,
-    leer_forense as _ciber_modo2_forense,
-)
-from ciber_admin import (
-    ejecutar_admin as _ciber_admin_ejecutar,
-    leer_forense as _ciber_admin_forense,
-)
-from ciber_movimiento import (
-    ejecutar_movimiento as _ciber_mov_ejecutar,
-    leer_forense as _ciber_mov_forense,
-    resolver_identidad as _ciber_mov_resolver,
-)
-from ciber_ingesta import (
-    agregar_eventos as _ciber_buffer_agregar,
-    estado_buffer as _ciber_buffer_estado,
-    leer_buffer as _ciber_buffer_leer,
-    vaciar_buffer as _ciber_buffer_vaciar,
-    poll_endpoint as _ciber_buffer_poll,
+from agora_conector import (
+    listar_dominios as _agora_listar,
+    info_dominio as _agora_info,
+    triangular as _agora_triangular,
+    demo_entradas as _agora_demo,
 )
 
-CIBER_HERRAMIENTAS = [
-    {"id": "modo1", "nombre": "Modo 1 — Observación Pasiva",
-     "descripcion": "Solo observa: manifold geométrico + disonancia + reporte bimestral.",
-     "icono": "Eye", "disponible": True},
-    {"id": "modo2", "nombre": "Modo 2 — Respuesta Adaptativa",
-     "descripcion": "PolicyAdapter + acciones por nivel + registro forense.",
-     "icono": "ShieldCheck", "disponible": True},
-    {"id": "administrativa", "nombre": "Capa Administrativa",
-     "descripcion": "Manifold de intenciones IAM (AD/Azure/auditd) + autoprotección.",
-     "icono": "KeyRound", "disponible": True},
-    {"id": "movimiento", "nombre": "Capa de Movimiento",
-     "descripcion": "Badges y espacios con privacidad y autorización dual.",
-     "icono": "DoorOpen", "disponible": True},
-]
+
+class AgoraTriangularInput(BaseModel):
+    dominio_id: str
+    entradas: Optional[dict] = None   # {nodo: {observable: valor, ...}}
 
 
-@api_router.get("/ciber/herramientas")
-async def ciber_herramientas():
-    """Las 4 herramientas GSL disponibles como opciones (Modo 1 activo)."""
-    return {"herramientas": CIBER_HERRAMIENTAS}
+@api_router.get("/agora/dominios")
+async def agora_dominios():
+    """Los 7 dominios principales del Ágora."""
+    return {"dominios": _agora_listar()}
 
 
-@api_router.get("/ciber/dominios")
-async def ciber_dominios():
-    """Las 6 empresas (el palenque demo NO usa el motor de ciberseguridad)."""
-    empresas = [d for d in DOMINIOS_EMPRESAS]
-    ref = {"clinica": "dom_clinica_v1", "hotel": "dom_hotel_v1",
-           "restaurante": "dom_restaurante_v1", "retail": "dom_retail_v1",
-           "fabrica": "dom_fabrica_v1", "logistica": "dom_logistica_v1"}
-    return {"dominios": [{"domain_id": ref[d["id"]], "id": d["id"],
-                          "nombre": d["nombre"], "icono": d["icono"]}
-                         for d in empresas if d["id"] in ref]}
-
-
-@api_router.get("/ciber/modo1/config")
-async def ciber_modo1_config(dominio: str):
+@api_router.get("/agora/dominio/{dominio_id}")
+async def agora_dominio(dominio_id: str):
+    """Config del dominio: nodos, observables (coordenadas a ingestar), primitivo, tipo."""
     try:
-        return _ciber_modo1_info(dominio)
+        info = _agora_info(dominio_id)
+        info["demo_entradas"] = _agora_demo(dominio_id)
+        return info
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@api_router.post("/ciber/modo1/analizar")
-async def ciber_modo1_analizar(
-    domain_id: str = Form(...),
-    fuente: str = Form("embudo"),           # 'embudo' | 'api_webhook'
-    payload: Optional[str] = Form(None),    # JSON/CEF string (fuente=api_webhook)
-    seed: int = Form(42),
-    files: List[UploadFile] = File(default=[]),
-):
-    """
-    Ejecuta el Modo 1 (observación pasiva) para una de las 6 empresas.
-    Ingesta dual: 'embudo' (archivos del cucurucho) o 'api_webhook' (payload SIEM).
-    """
-    archivos = [{"nombre": f.filename, "datos": await f.read()} for f in (files or [])]
-    payload_data = None
-    if fuente == "api_webhook" and payload:
-        try:
-            payload_data = json.loads(payload)
-        except Exception:
-            payload_data = payload  # puede ser CEF crudo
+@api_router.post("/agora/triangular")
+async def agora_triangular(body: AgoraTriangularInput):
+    """Ingesta de coordenadas conocidas → el primitivo aporta la disonancia (x) → plano (x,y)."""
     try:
-        return _ciber_modo1_ejecutar(domain_id, fuente=fuente, archivos=archivos,
-                                     payload=payload_data, seed=seed)
-    except ValueError as e:
+        return _agora_triangular(body.dominio_id, body.entradas)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except (ValueError, KeyError) as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@api_router.get("/ciber/modo1/historial/{domain_id}")
-async def ciber_modo1_historial(domain_id: str):
-    return _ciber_modo1_memoria(domain_id)
-
-
-# ─── Modo 2 (Respuesta Adaptativa) ───────────────────────────────────────────
-class CiberOverrideInput(BaseModel):
-    override_token: str
-    admin: str
-    accion_correcta: Optional[str] = None
-
-
-class CiberConfirmarInput(BaseModel):
-    override_token: str
-    admin: str
-
-
-@api_router.post("/ciber/modo2/analizar")
-async def ciber_modo2_analizar(
-    domain_id: str = Form(...),
-    fuente: str = Form("embudo"),
-    payload: Optional[str] = Form(None),
-    seed: int = Form(42),
-    files: List[UploadFile] = File(default=[]),
-):
-    archivos = [{"nombre": f.filename, "datos": await f.read()} for f in (files or [])]
-    payload_data = None
-    if fuente == "api_webhook" and payload:
-        try:
-            payload_data = json.loads(payload)
-        except Exception:
-            payload_data = payload
-    try:
-        return _ciber_modo2_ejecutar(domain_id, fuente=fuente, archivos=archivos,
-                                     payload=payload_data, seed=seed)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@api_router.get("/ciber/modo2/forense/{domain_id}")
-async def ciber_modo2_forense(domain_id: str):
-    return _ciber_modo2_forense(domain_id)
-
-
-@api_router.post("/ciber/modo2/override")
-async def ciber_modo2_override(domain_id: str, body: CiberOverrideInput):
-    r = _ciber_modo2_override(domain_id, body.override_token, body.admin, body.accion_correcta)
-    if not r.get("ok"):
-        raise HTTPException(status_code=400, detail=r.get("msg"))
-    return r
-
-
-@api_router.post("/ciber/modo2/confirmar")
-async def ciber_modo2_confirmar(domain_id: str, body: CiberConfirmarInput):
-    r = _ciber_modo2_confirmar(domain_id, body.override_token, body.admin)
-    if not r.get("ok"):
-        raise HTTPException(status_code=400, detail=r.get("msg"))
-    return r
-
-
-# ─── Capa Administrativa ─────────────────────────────────────────────────────
-@api_router.post("/ciber/admin/analizar")
-async def ciber_admin_analizar(
-    domain_id: str = Form(...),
-    fuente: str = Form("embudo"),
-    platform: str = Form("generic"),
-    payload: Optional[str] = Form(None),
-    seed: int = Form(42),
-    files: List[UploadFile] = File(default=[]),
-):
-    archivos = [{"nombre": f.filename, "datos": await f.read()} for f in (files or [])]
-    payload_data = None
-    if fuente == "api_webhook" and payload:
-        try:
-            payload_data = json.loads(payload)
-        except Exception:
-            payload_data = payload
-    try:
-        return _ciber_admin_ejecutar(domain_id, fuente=fuente, archivos=archivos,
-                                     payload=payload_data, platform=platform, seed=seed)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@api_router.get("/ciber/admin/forense/{domain_id}")
-async def ciber_admin_forense(domain_id: str):
-    return {"records": _ciber_admin_forense(domain_id)}
-
-
-# ─── Capa de Movimiento ──────────────────────────────────────────────────────
-class CiberResolverInput(BaseModel):
-    record_id: str
-    admin1: str
-    admin2: str
-
-
-@api_router.post("/ciber/movimiento/analizar")
-async def ciber_mov_analizar(
-    domain_id: str = Form(...),
-    fuente: str = Form("embudo"),
-    payload: Optional[str] = Form(None),
-    seed: int = Form(42),
-    files: List[UploadFile] = File(default=[]),
-):
-    archivos = [{"nombre": f.filename, "datos": await f.read()} for f in (files or [])]
-    payload_data = None
-    if fuente == "api_webhook" and payload:
-        try:
-            payload_data = json.loads(payload)
-        except Exception:
-            payload_data = payload
-    try:
-        return _ciber_mov_ejecutar(domain_id, fuente=fuente, archivos=archivos,
-                                   payload=payload_data, seed=seed)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@api_router.get("/ciber/movimiento/forense/{domain_id}")
-async def ciber_mov_forense(domain_id: str):
-    return {"records": _ciber_mov_forense(domain_id)}
-
-
-@api_router.post("/ciber/movimiento/resolver-identidad")
-async def ciber_mov_resolver(domain_id: str, body: CiberResolverInput):
-    r = _ciber_mov_resolver(domain_id, body.record_id, body.admin1, body.admin2)
-    if not r.get("ok"):
-        raise HTTPException(status_code=400, detail=r.get("msg"))
-    return r
-
-
-# ─── Ingesta SIEM en vivo (webhook receiver + poll) ──────────────────────────
-class CiberPollInput(BaseModel):
-    url: str
-    api_key: Optional[str] = ""
-
-
-@api_router.post("/ciber/ingesta/webhook/{domain_id}")
-async def ciber_ingesta_webhook(domain_id: str, body: Any = Body(...)):
-    """Receptor de eventos SIEM/IAM en vivo (push) del nodo del cliente."""
-    if domain_id not in _CIBER_DOMS:
-        raise HTTPException(status_code=400, detail=f"Dominio no empresarial: {domain_id}")
-    n = _ciber_buffer_agregar(domain_id, body, fuente="webhook")
-    return {"domain_id": domain_id, "eventos_agregados": n, "buffer": _ciber_buffer_estado(domain_id)}
-
-
-@api_router.get("/ciber/ingesta/buffer/{domain_id}")
-async def ciber_ingesta_buffer(domain_id: str, limit: int = 20):
-    return {"estado": _ciber_buffer_estado(domain_id), "ultimos": _ciber_buffer_leer(domain_id, limit)}
-
-
-@api_router.delete("/ciber/ingesta/buffer/{domain_id}")
-async def ciber_ingesta_vaciar(domain_id: str):
-    return _ciber_buffer_vaciar(domain_id)
-
-
-@api_router.post("/ciber/ingesta/poll/{domain_id}")
-async def ciber_ingesta_poll(domain_id: str, body: CiberPollInput):
-    """Nivel 1 — el backend hace un GET saliente al endpoint del cliente."""
-    if domain_id not in _CIBER_DOMS:
-        raise HTTPException(status_code=400, detail=f"Dominio no empresarial: {domain_id}")
-    r = _ciber_buffer_poll(domain_id, body.url, body.api_key or "")
-    if not r.get("ok"):
-        raise HTTPException(status_code=502, detail=r.get("msg"))
-    return r
 
 
 # ─── Registro del router y arranque ─────────────────────────────────────────

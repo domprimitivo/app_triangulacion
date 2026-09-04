@@ -106,3 +106,17 @@ Falta antes de construir:
   → Necesito que el usuario suba `conector.py` (o la fórmula) para portarlo FIEL, sin inventar.
 - **B) Los 6 dominios restantes** (hotel, clínica, restaurante, retail, logística, fábrica),
   cada uno con su `dominio_<x>.json` y su archivo de subdominios/nodos. El usuario los subirá por partes.
+
+---
+
+## ✅ CONSTRUIDO Y TESTEADO (2026-06) — iteration_9.json (backend 12/12 + frontend, sin issues)
+- **REEMPLAZA a la ciberseguridad**, eliminada por completo (ciber_*.py, /ciberseguridad, flujo/ciber*, tests).
+- Motor `backend/agora_conector.py` = puerto FIEL de `conector.py` (ciego al dominio). Primitivos:
+  `disonancia_vs_fisico`, `coherencia_stock`, y los 3 de fábrica (`saturacion`, `deuda_backlog`,
+  `deficit_acoplado`, fórmulas confirmadas). Python+numpy puro.
+- 7 dominios en `backend/flujo/agora/dominio_*.json`. 6 externos (dinero/69-B) + fábrica interna
+  (y por `deficit_acoplado`, nodos blandos que orientan sin x).
+- Flujo: ingesta de coordenadas conocidas → disonancia (x) → plano (x vs y). Sin KPIs/Cantor/geodésicas.
+- Endpoints: `GET /api/agora/dominios`, `GET /api/agora/dominio/{id}`, `POST /api/agora/triangular`.
+- Frontend `Agora.jsx` en `/agora`. Regresión: `backend/tests/test_agora.py`.
+
