@@ -1,0 +1,163 @@
+{
+  "dominio": "retail_venta",
+  "_descripcion": "Retail / Venta al detalle. Triangula compras, inventario y caja contra la actividad real de ventas (tickets, unidades vendidas, rotación). El lado ingreso (caja, facturación) y el lado costo (compras, inventario) se triangulan conjuntamente.",
+  "primaria": "venta_retail",
+  "triangulacion": "externa_dinero",
+  "coordenada_compartida": {
+    "_descripcion": "y = señal de compras (proveedores, sobreprecio, concentración, volumen). Importada con su gamma.",
+    "senal_campo": "y_senal",
+    "gamma_campo": "y_gamma",
+    "gamma_default": 0.5
+  },
+  "nodos": {
+    "ventas_caja": {
+      "tipo": "flujo",
+      "rol": "ingreso",
+      "_descripcion": "Ancla infalsificable: tickets de venta vs unidades vendidas reales. Detecta desviación entre caja y producto físico.",
+      "observables": ["tickets_reportados", "unidades_vendidas", "monto_facturado", "horas_caja", "clientes_atendidos"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "tickets_reportados",
+          "fisico_obs": "unidades_vendidas",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.7,
+          "sec_obs": "monto_facturado",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "clientes atendidos por hora-caja (productividad de punto de venta)",
+        "numerador": "clientes_atendidos",
+        "denominador": "horas_caja"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "inventario_retail": {
+      "tipo": "flujo/ancla",
+      "rol": "stock",
+      "_descripcion": "Ancla infalsificable: rotación real de inventario (merma vs esperada). Detecta desvío de producto y pérdidas.",
+      "observables": ["inventario_declarado", "conteo_fisico", "patron_acceso", "merma_reportada", "rotacion_esperada"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "inventario_declarado",
+          "fisico_obs": "conteo_fisico",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.8,
+          "sec_obs": "patron_acceso",
+          "sec_peso": 0.2
+        }
+      },
+      "avance": {
+        "_descripcion": "rotación real vs esperada (eficiencia de inventario)",
+        "numerador": "conteo_fisico",
+        "denominador": "rotacion_esperada"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "compras_retail": {
+      "tipo": "flujo",
+      "rol": "consumo",
+      "_descripcion": "Ancla infalsificable: producto comprado vs producto vendido. Detecta desviación entre compras y ventas reales.",
+      "observables": ["producto_comprado", "unidades_vendidas", "concentracion_proveedor", "stock_final"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "producto_comprado",
+          "fisico_obs": "unidades_vendidas",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.20,
+          "peso": 0.7,
+          "sec_obs": "concentracion_proveedor",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "producto vendido por producto comprado (eficiencia de compras)",
+        "numerador": "unidades_vendidas",
+        "denominador": "producto_comprado"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "devoluciones": {
+      "tipo": "flujo/ancla",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: devoluciones por venta. Detecta fraude o fallos en calidad de producto.",
+      "observables": ["devoluciones_reportadas", "ventas_totales", "motivos_devolucion", "clientes_afectados"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "devoluciones_reportadas",
+          "fisico_obs": "ventas_totales",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.10,
+          "peso": 0.6,
+          "sec_obs": "motivos_devolucion",
+          "sec_peso": 0.4
+        }
+      },
+      "avance": {
+        "_descripcion": "(no aplica: ancla) coherencia de devoluciones vs ventas",
+        "numerador": null,
+        "denominador": null
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "reposicion": {
+      "tipo": "flujo",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: producto repuesto por hora de almacén. Detecta eficiencia de reposición.",
+      "observables": ["producto_repuesto", "horas_almacen", "stock_critico", "ordenes_reposicion"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "producto_repuesto",
+          "fisico_obs": "horas_almacen",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.7,
+          "sec_obs": "stock_critico",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "productos repuestos por hora-almacén",
+        "numerador": "producto_repuesto",
+        "denominador": "horas_almacen"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    }
+  },
+  "_primitivos_requeridos": {
+    "disonancia_vs_fisico": "ya existe en conector.py"
+  },
+  "_observacion": "Los nodos de stock/coherencia (inventario) y blandos/orientadores (satisfacción del cliente, clima laboral) se añaden en una segunda capa. La arista de vigilancia (cámaras) es ancla pura y se añade como verificador transversal."
+}

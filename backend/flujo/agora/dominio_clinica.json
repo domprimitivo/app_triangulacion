@@ -1,0 +1,163 @@
+{
+  "dominio": "clinica_atencion",
+  "_descripcion": "Clínica / Hospital. Triangula costo de insumos y personal contra la actividad clínica real (consultas, procedimientos, estancias). El lado ingreso (facturación, cobranza) sería un segundo triplete con primaria=revenue.",
+  "primaria": "servicio_salud",
+  "triangulacion": "externa_dinero",
+  "coordenada_compartida": {
+    "_descripcion": "y = señal de compras (insumos médicos, fármacos, proveedores, sobreprecio, concentración). Importada con su gamma.",
+    "senal_campo": "y_senal",
+    "gamma_campo": "y_gamma",
+    "gamma_default": 0.5
+  },
+  "nodos": {
+    "consultas_medicas": {
+      "tipo": "flujo",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: tiempo de consulta real (duración). Doble uso con Fase 1 (fatiga/carga).",
+      "observables": ["consultas_reportadas", "duracion_promedio_consulta", "tiempo_total_atencion", "horas_medico", "pacientes_atendidos"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "consultas_reportadas",
+          "fisico_obs": "tiempo_total_atencion",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.20,
+          "peso": 0.7,
+          "sec_obs": "duracion_promedio_consulta",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "pacientes atendidos por hora-médico (o consultas por hora)",
+        "numerador": "pacientes_atendidos",
+        "denominador": "horas_medico"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "procedimientos_clinicos": {
+      "tipo": "flujo",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: uso de insumos por procedimiento (ej. suturas, material de curación).",
+      "observables": ["procedimientos_reportados", "insumo_por_procedimiento", "material_utilizado", "horas_quirurgicas"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "procedimientos_reportados",
+          "fisico_obs": "material_utilizado",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.30,
+          "peso": 0.8,
+          "sec_obs": "insumo_por_procedimiento",
+          "sec_peso": 0.2
+        }
+      },
+      "avance": {
+        "_descripcion": "procedimientos por hora-quirúrgica",
+        "numerador": "procedimientos_reportados",
+        "denominador": "horas_quirurgicas"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "estancias_hospitalarias": {
+      "tipo": "flujo",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: días de estancia real vs reportados (cama ocupada).",
+      "observables": ["dias_estancia_reportados", "ocupacion_cama_real", "pacientes_ingresados", "altas"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "dias_estancia_reportados",
+          "fisico_obs": "ocupacion_cama_real",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.75,
+          "sec_obs": "pacientes_ingresados",
+          "sec_peso": 0.25
+        }
+      },
+      "avance": {
+        "_descripcion": "días de estancia por cama disponible (rotación)",
+        "numerador": "dias_estancia_reportados",
+        "denominador": "ocupacion_cama_real"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "farmacia": {
+      "tipo": "flujo/ancla",
+      "rol": "consumo",
+      "_descripcion": "Ancla infalsificable: consumo de fármacos por paciente-día. Vincula compras con prescripción real.",
+      "observables": ["farmacos_comprados", "pacientes_tratados", "dosis_promedio", "prescripciones_emitidas"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "farmacos_comprados",
+          "fisico_obs": "pacientes_tratados",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.25,
+          "peso": 0.7,
+          "sec_obs": "prescripciones_emitidas",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "dosis por paciente-día (eficiencia de prescripción)",
+        "numerador": "farmacos_comprados",
+        "denominador": "pacientes_tratados"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "laboratorio_clinico": {
+      "tipo": "flujo",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: reactivos por muestra procesada. Detecta desviación entre muestras reportadas y reactivos consumidos.",
+      "observables": ["muestras_reportadas", "reactivos_consumidos", "horas_laboratorio"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "muestras_reportadas",
+          "fisico_obs": "reactivos_consumidos",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.20,
+          "peso": 0.8,
+          "sec_obs": "reactivos_consumidos",
+          "sec_peso": 0.2
+        }
+      },
+      "avance": {
+        "_descripcion": "muestras por hora-laboratorio",
+        "numerador": "muestras_reportadas",
+        "denominador": "horas_laboratorio"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    }
+  },
+  "_primitivos_requeridos": {
+    "disonancia_vs_fisico": "ya existe en conector.py"
+  },
+  "_observacion": "Los nodos de stock/coherencia (catastro de pacientes, historial clínico) y blandos/orientadores (satisfacción del paciente, clima laboral) se añaden en una segunda capa."
+}

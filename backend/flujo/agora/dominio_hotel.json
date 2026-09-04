@@ -1,0 +1,53 @@
+{
+  "dominio": "hotel_costo",
+  "_descripcion": "Hotel, lado COSTO/INSUMO (caso del sous chef). El hotel administrativo/RM tiene su centro de gravedad en el ingreso; aqui se trabaja el lado costo, que triangula EXTERNAMENTE contra la coordenada dinero (senal de compras). El lado ingreso (front_desk/checkout) seria un segundo triplete con primaria=revenue.",
+  "primaria": "dinero",
+  "triangulacion": "externa_dinero",
+  "coordenada_compartida": {
+    "_descripcion": "y = senal de compras (banderas de proveedor/69-B, sobreprecio, concentracion, volumen). Importada con su gamma.",
+    "senal_campo": "y_senal",
+    "gamma_campo": "y_gamma",
+    "gamma_default": 0.5
+  },
+  "nodos": {
+    "housekeeping": {
+      "tipo": "flujo",
+      "rol": "consumo",
+      "_descripcion": "Ancla infalsificable: consumo por habitacion-noche (ocupacion). Doble uso con Fase 1 (fatiga/carga).",
+      "observables": ["insumo_comprado", "habitacion_noche", "concentracion_proveedor", "habitaciones_atendidas", "horas_camarista"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {"reportado": "insumo_comprado", "fisico_obs": "habitacion_noche", "fisico_factor": 1.0, "orientacion": "reportado_excede", "div": 0.25, "peso": 0.8, "sec_obs": "concentracion_proveedor", "sec_peso": 0.2}
+      },
+      "avance": {"_descripcion": "habitaciones atendidas por hora-camarista", "numerador": "habitaciones_atendidas", "denominador": "horas_camarista"},
+      "coordenada_y": {"senal_campo": "y_senal", "gamma_campo": "y_gamma", "gamma_default": 0.5}
+    },
+    "food_beverage": {
+      "tipo": "flujo",
+      "rol": "consumo",
+      "_descripcion": "El caso literal del sous chef. Ancla: consumo por cubierto servido.",
+      "observables": ["insumo_comprado", "cubiertos_servidos", "concentracion_proveedor", "horas_cocina"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {"reportado": "insumo_comprado", "fisico_obs": "cubiertos_servidos", "fisico_factor": 1.0, "orientacion": "reportado_excede", "div": 0.25, "peso": 0.8, "sec_obs": "concentracion_proveedor", "sec_peso": 0.2}
+      },
+      "avance": {"_descripcion": "cubiertos por hora-cocina", "numerador": "cubiertos_servidos", "denominador": "horas_cocina"},
+      "coordenada_y": {"senal_campo": "y_senal", "gamma_campo": "y_gamma", "gamma_default": 0.5}
+    },
+    "maintenance": {
+      "tipo": "flujo",
+      "rol": "consumo",
+      "_descripcion": "Ancla: material por orden cerrada (obra hecha). Engancha con el mantenimiento diferido del mapa.",
+      "observables": ["material_comprado", "ordenes_cerradas", "concentracion_proveedor", "backlog_ordenes"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {"reportado": "material_comprado", "fisico_obs": "ordenes_cerradas", "fisico_factor": 1.0, "orientacion": "reportado_excede", "div": 0.25, "peso": 0.8, "sec_obs": "concentracion_proveedor", "sec_peso": 0.2}
+      },
+      "avance": {"_descripcion": "cierre vs backlog", "numerador": "ordenes_cerradas", "denominador": "backlog_ordenes"},
+      "coordenada_y": {"senal_campo": "y_senal", "gamma_campo": "y_gamma", "gamma_default": 0.5}
+    }
+  },
+  "_primitivos_requeridos": {
+    "disonancia_vs_fisico": "ya existe en conector.py"
+  }
+}

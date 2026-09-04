@@ -1,0 +1,163 @@
+{
+  "dominio": "logistica_flujo",
+  "_descripcion": "Logística / Transporte de mercancías. Triangula costos de operación (combustible, mantenimiento, personal) contra la actividad real (toneladas-km, entregas, tiempos de ruta). El lado ingreso (facturación por flete) y el lado costo (combustible, mantenimiento) se triangulan conjuntamente.",
+  "primaria": "flujo_logistico",
+  "triangulacion": "externa_dinero",
+  "coordenada_compartida": {
+    "_descripcion": "y = señal de compras (combustible, mantenimiento, proveedores, sobreprecio, concentración). Importada con su gamma.",
+    "senal_campo": "y_senal",
+    "gamma_campo": "y_gamma",
+    "gamma_default": 0.5
+  },
+  "nodos": {
+    "entregas": {
+      "tipo": "flujo",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: entregas realizadas vs entregas reportadas (GPS, firma de cliente). Detecta desviación entre reporte y realidad.",
+      "observables": ["entregas_reportadas", "entregas_gps", "firmas_cliente", "horas_ruta", "vehiculos_activos"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "entregas_reportadas",
+          "fisico_obs": "entregas_gps",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.7,
+          "sec_obs": "firmas_cliente",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "entregas por hora-vehículo (productividad de flota)",
+        "numerador": "entregas_gps",
+        "denominador": "horas_ruta"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "combustible": {
+      "tipo": "flujo",
+      "rol": "consumo",
+      "_descripcion": "Ancla infalsificable: consumo real de combustible vs esperado por km recorrido. Detecta desvío de combustible.",
+      "observables": ["combustible_comprado", "kilometros_recorridos", "combustible_esperado", "concentracion_proveedor"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "combustible_comprado",
+          "fisico_obs": "kilometros_recorridos",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.20,
+          "peso": 0.8,
+          "sec_obs": "concentracion_proveedor",
+          "sec_peso": 0.2
+        }
+      },
+      "avance": {
+        "_descripcion": "km por litro de combustible (eficiencia de consumo)",
+        "numerador": "kilometros_recorridos",
+        "denominador": "combustible_comprado"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "mantenimiento_vehiculos": {
+      "tipo": "flujo",
+      "rol": "consumo",
+      "_descripcion": "Ancla infalsificable: mantenimiento real vs esperado por kilómetro. Detecta desvío de recursos de mantenimiento.",
+      "observables": ["mantenimiento_reportado", "kilometros_recorridos", "mantenimiento_esperado", "fallas_vehiculo"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "mantenimiento_reportado",
+          "fisico_obs": "kilometros_recorridos",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.7,
+          "sec_obs": "fallas_vehiculo",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "kilómetros por unidad de mantenimiento (eficiencia de mantenimiento)",
+        "numerador": "kilometros_recorridos",
+        "denominador": "mantenimiento_reportado"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "rutas_operacion": {
+      "tipo": "flujo",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: tiempo real de ruta vs tiempo esperado. Detecta desviación entre planificación y realidad.",
+      "observables": ["tiempo_ruta_real", "tiempo_ruta_esperado", "vehiculos_asignados", "entregas_realizadas"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "tiempo_ruta_real",
+          "fisico_obs": "tiempo_ruta_esperado",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.7,
+          "sec_obs": "entregas_realizadas",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "toneladas-km por hora de ruta (productividad de ruta)",
+        "numerador": "entregas_realizadas",
+        "denominador": "tiempo_ruta_real"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "almacen_logistica": {
+      "tipo": "flujo/ancla",
+      "rol": "stock",
+      "_descripcion": "Ancla infalsificable: rotación real de inventario en almacén. Detecta desvío de mercancía.",
+      "observables": ["inventario_declarado", "conteo_fisico", "patron_acceso", "merma_reportada"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "inventario_declarado",
+          "fisico_obs": "conteo_fisico",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.8,
+          "sec_obs": "patron_acceso",
+          "sec_peso": 0.2
+        }
+      },
+      "avance": {
+        "_descripcion": "(no aplica: stock) coherencia de rotación y merma",
+        "numerador": null,
+        "denominador": null
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    }
+  },
+  "_primitivos_requeridos": {
+    "disonancia_vs_fisico": "ya existe en conector.py"
+  },
+  "_observacion": "Los nodos de stock/coherencia (inventario) y blandos/orientadores (satisfacción del cliente, clima laboral) se añaden en una segunda capa. La arista de vigilancia (GPS, cámaras) es ancla pura y se añade como verificador transversal."
+}

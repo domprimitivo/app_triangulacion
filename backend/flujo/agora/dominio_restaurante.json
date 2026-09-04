@@ -1,0 +1,134 @@
+{
+  "dominio": "restaurante_operacion",
+  "_descripcion": "Restaurante. Triangula costo de insumos y personal contra la actividad real (cubiertos servidos, habitaciones-noche en hotel, etc.). El lado ingreso (ventas, ticket promedio) sería un segundo triplete con primaria=revenue.",
+  "primaria": "servicio_restaurante",
+  "triangulacion": "externa_dinero",
+  "coordenada_compartida": {
+    "_descripcion": "y = señal de compras (insumos, proveedores, sobreprecio, concentración, volumen). Importada con su gamma.",
+    "senal_campo": "y_senal",
+    "gamma_campo": "y_gamma",
+    "gamma_default": 0.5
+  },
+  "nodos": {
+    "cocina": {
+      "tipo": "flujo",
+      "rol": "consumo",
+      "_descripcion": "Ancla infalsificable: consumo de insumos por cubierto servido. El caso del sous chef.",
+      "observables": ["insumo_comprado", "cubiertos_servidos", "concentracion_proveedor", "horas_cocina", "merma_reportada"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "insumo_comprado",
+          "fisico_obs": "cubiertos_servidos",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.25,
+          "peso": 0.8,
+          "sec_obs": "concentracion_proveedor",
+          "sec_peso": 0.2
+        }
+      },
+      "avance": {
+        "_descripcion": "cubiertos por hora-cocina (productividad de cocina)",
+        "numerador": "cubiertos_servidos",
+        "denominador": "horas_cocina"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "barra": {
+      "tipo": "flujo",
+      "rol": "consumo",
+      "_descripcion": "Ancla infalsificable: consumo de bebidas por servicio de barra. Vincula compras con consumo real.",
+      "observables": ["bebidas_compradas", "servicios_barra", "concentracion_proveedor", "horas_bar"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "bebidas_compradas",
+          "fisico_obs": "servicios_barra",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.20,
+          "peso": 0.7,
+          "sec_obs": "concentracion_proveedor",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "servicios por hora-barra",
+        "numerador": "servicios_barra",
+        "denominador": "horas_bar"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "salon": {
+      "tipo": "flujo",
+      "rol": "servicio",
+      "_descripcion": "Ancla infalsificable: rotación de mesas (mesas servidas por hora). Detecta subreporte de ocupación.",
+      "observables": ["mesas_ocupadas", "mesas_servidas", "horas_salon", "clientes_atendidos"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "mesas_ocupadas",
+          "fisico_obs": "mesas_servidas",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.7,
+          "sec_obs": "clientes_atendidos",
+          "sec_peso": 0.3
+        }
+      },
+      "avance": {
+        "_descripcion": "clientes por hora-salon (capacidad de servicio)",
+        "numerador": "clientes_atendidos",
+        "denominador": "horas_salon"
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    },
+    "almacen_restaurante": {
+      "tipo": "flujo/ancla",
+      "rol": "stock",
+      "_descripcion": "Ancla infalsificable: rotación real de inventario (merma vs esperada). Detecta desvío de insumos.",
+      "observables": ["inventario_declarado", "conteo_fisico", "patron_acceso", "merma_reportada"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {
+          "reportado": "inventario_declarado",
+          "fisico_obs": "conteo_fisico",
+          "fisico_factor": 1.0,
+          "orientacion": "reportado_excede",
+          "div": 0.15,
+          "peso": 0.8,
+          "sec_obs": "patron_acceso",
+          "sec_peso": 0.2
+        }
+      },
+      "avance": {
+        "_descripcion": "(no aplica: stock) coherencia de rotación y merma",
+        "numerador": null,
+        "denominador": null
+      },
+      "coordenada_y": {
+        "senal_campo": "y_senal",
+        "gamma_campo": "y_gamma",
+        "gamma_default": 0.5
+      }
+    }
+  },
+  "_primitivos_requeridos": {
+    "disonancia_vs_fisico": "ya existe en conector.py"
+  },
+  "_observacion": "Los nodos de stock/coherencia (inventario) y blandos/orientadores (satisfacción del cliente, clima laboral) se añaden en una segunda capa. La arista de vigilancia (cámaras) es ancla pura y se añade como verificador transversal."
+}
