@@ -174,3 +174,43 @@ intacto el resto de funciones. Almacenamiento de archivos en disco local (nunca 
   Modo 1/2 con 3 fuentes (embudo/api_webhook/en vivo), Admin/Movimiento con 2; dashboards por
   herramienta (forense con confirmar/override, autoataque GSL, ocupación, resolución dual).
   Motores en Python+numpy puro (sin pandas/networkx/gradio), soberanos y locales.
+
+## SIGUIENTE VARIACIÓN — Insertar el "elemento de habitabilidad" en un SISTEMA INTEGRAL (2026-06)
+> Estado: **DEFINIDO, NO CONSTRUIDO**. Diagnóstico buyer-journey confirmado con el usuario.
+> La conversación se resume aquí para avanzar a esta variación.
+
+### Idea central: el sujeto tiene 3 caras bajo la MISMA empresa
+Al seleccionar una empresa, el sujeto es a la vez **agente de ciberseguridad + empleado + persona**.
+Las 3 caras alimentan un mismo lugar, y el **elemento de habitabilidad = las herramientas**
+(en Producto 1 = semáforo/trayectoria; en Producto 2/empresa = las 4 herramientas GSL de
+ciberseguridad). "Variar e insertar la habitabilidad" = mostrarla como **salida ordenada dentro
+de un panel empresa-céntrico**, alimentada por los 3 flujos, no como ruta aislada.
+
+### Las 3 entradas (flujos) que deben converger y ordenarse en el mismo lugar
+1. **Cara agente (técnica)** → SIEM / permisos → herramientas GSL (YA construido, hoy en `/ciberseguridad`).
+2. **Cara empleado** → archivos de empresa / **correos internos** → embudo RAG (existe en `/archivos`,
+   falta etiquetarlo como flujo "empleado / correos internos").
+3. **Cara persona** → **campo de escritura libre**: el buyer pega texto de WhatsApp con etiqueta
+   **"nuevo contacto"** → el **Aprendiz sugiere "verificar confiabilidad"** (100% local/heurística,
+   pendiente confirmar). **NO existe** aún (ni UI ni backend).
+
+### Cómo se INSERTA/VARÍA el elemento de habitabilidad (plan)
+- **Registro paralelo unificado por empresa**: una bitácora única (gestionada por el Aprendiz) que
+  ordena con timestamp los 3 flujos en paralelo (técnico ↔ empresa/correos ↔ persona/confiabilidad).
+- **Panel empresa-céntrico ("mismo lugar")**: al elegir la empresa se ven las 3 caras + las
+  herramientas (habitabilidad) integradas como parte del todo. La habitabilidad se "inserta" como
+  el resultado ordenado y navegable que emerge de los 3 flujos, coherente con la observación
+  (elemento de claridad universal) que ya separa métrica discreta ↔ contraparte geométrica.
+- **Variación del contenido de habitabilidad según producto**: unipersonal → semáforo/trayectoria;
+  empresa → ciberseguridad. Mismo contenedor integral, distinto elemento de habitabilidad insertado.
+
+### Huecos a cerrar (prioridad)
+- P0: Campo "nuevo contacto" (texto libre) + sugerencia de confiabilidad del Aprendiz (local).
+- P0: Registro paralelo unificado por empresa (bitácora del Aprendiz sobre los 3 flujos).
+- P1: Panel empresa-céntrico que inserta la habitabilidad (herramientas) como parte del sistema.
+- P2: Etiquetar la cara "empleado" del embudo RAG como flujo de correos internos.
+
+### Pendiente de confirmar antes de construir
+- Confiabilidad: 100% local/heurística (esperado por soberanía) — falta OK explícito.
+- Panel integral: pantalla nueva vs. integrarlo en `/ciberseguridad`.
+- Pantalla de inicialización: sigue en el exe Flutter (no en este React); aquí solo tocamos "empresas".
