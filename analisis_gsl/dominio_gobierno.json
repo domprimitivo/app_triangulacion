@@ -1,0 +1,54 @@
+{
+  "dominio": "gobierno",
+  "_descripcion": "Dominio de FRAUDE (flujo de dinero publico). Centro de gravedad = el manejo del dinero, el punto que conecta con el exterior/caja. Triangulacion EXTERNA contra la coordenada dinero (marcador 69-B). Los nodos de gasto/activo se leen contra ella.",
+  "primaria": "dinero",
+  "triangulacion": "externa_dinero",
+  "coordenada_compartida": {
+    "_descripcion": "y = marcador de red de proveedores validado contra 69-B (SAT). Importada por cada nodo con su gamma. Costo de adopcion cero: corre sobre datos publicos.",
+    "senal_campo": "y_senal",
+    "gamma_campo": "y_gamma",
+    "gamma_default": 0.5
+  },
+  "nodos": {
+    "agua": {
+      "tipo": "flujo",
+      "rol": "soporte_gasto",
+      "_descripcion": "Lado GASTO. Ancla infalsificable: energia de bombeo (se maquilla el volumen, no los kWh).",
+      "observables": ["volumen_extraido_m3", "energia_kwh", "y_senal", "y_gamma"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {"reportado": "volumen_extraido_m3", "fisico_obs": "energia_kwh", "fisico_factor": 2.2222, "orientacion": "fisico_excede", "div": 0.20, "peso": 1.0}
+      },
+      "avance": {"_descripcion": "m3 entregados por kWh", "numerador": "volumen_extraido_m3", "denominador": "energia_kwh"},
+      "coordenada_y": {"senal_campo": "y_senal", "gamma_campo": "y_gamma", "gamma_default": 0.5}
+    },
+    "nomina": {
+      "tipo": "flujo",
+      "rol": "soporte_gasto",
+      "_descripcion": "Lado GASTO. Ancla infalsificable: servicio real / asistencia (el aviador no produce servicio ni deja asistencia).",
+      "observables": ["plazas_pagadas", "servicio_real", "asistencia_fte", "cuentas_distintas", "y_senal", "y_gamma"],
+      "ancla": {
+        "primitivo": "disonancia_vs_fisico",
+        "params": {"reportado": "plazas_pagadas", "fisico_obs": "servicio_real", "fisico_factor": 0.0333, "orientacion": "reportado_excede", "div": 0.20, "peso": 0.8, "sec_obs": "concentracion_cuentas", "sec_peso": 0.2}
+      },
+      "avance": {"_descripcion": "unidades de servicio por plaza pagada", "numerador": "servicio_real", "denominador": "plazas_pagadas"},
+      "coordenada_y": {"senal_campo": "y_senal", "gamma_campo": "y_gamma", "gamma_default": 0.5}
+    },
+    "catastro": {
+      "tipo": "stock",
+      "rol": "soporte_activo",
+      "_descripcion": "Lado ACTIVO (donde aterriza el dinero). Sin throughput: coherencia de acumulacion. Ancla: superficie construida (satelite).",
+      "observables": ["valor_mercado", "ingreso_declarado", "y_senal", "y_gamma"],
+      "ancla": {
+        "primitivo": "coherencia_stock",
+        "params": {"activo": "valor_mercado", "justificacion": "ingreso_declarado", "div": 0.8, "peso": 1.0}
+      },
+      "avance": null,
+      "coordenada_y": {"senal_campo": "y_senal", "gamma_campo": "y_gamma", "gamma_default": 0.5}
+    }
+  },
+  "_primitivos_requeridos": {
+    "disonancia_vs_fisico": "ya existe en conector.py",
+    "coherencia_stock": "ya existe en conector.py"
+  }
+}
