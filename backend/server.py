@@ -1814,12 +1814,24 @@ from agora_conector import (
     info_dominio as _agora_info,
     triangular as _agora_triangular,
     demo_entradas as _agora_demo,
+    obtener_umbral as _agora_get_umbral,
+    fijar_umbral as _agora_set_umbral,
+    buffer_recibir as _agora_buffer_recibir,
+    buffer_estado as _agora_buffer_estado,
+    buffer_vaciar as _agora_buffer_vaciar,
+    parse_archivo as _agora_parse_archivo,
 )
 
 
 class AgoraTriangularInput(BaseModel):
     dominio_id: str
     entradas: Optional[dict] = None   # {nodo: {observable: valor, ...}}
+    umbral: Optional[float] = None
+    fuente: Optional[str] = "manual"  # 'manual' | 'demo' | 'ingesta_live'
+
+
+class AgoraUmbralInput(BaseModel):
+    umbral: float
 
 
 @api_router.get("/agora/dominios")
@@ -1834,6 +1846,7 @@ async def agora_dominio(dominio_id: str):
     try:
         info = _agora_info(dominio_id)
         info["demo_entradas"] = _agora_demo(dominio_id)
+        info["umbral"] = _agora_get_umbral(dominio_id)
         return info
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -1843,7 +1856,71 @@ async def agora_dominio(dominio_id: str):
 async def agora_triangular(body: AgoraTriangularInput):
     """Ingesta de coordenadas conocidas → el primitivo aporta la disonancia (x) → plano (x,y)."""
     try:
-        return _agora_triangular(body.dominio_id, body.entradas)
+        entradas = body.entradas
+        origen = None
+        if body.fuente == "ingesta_live":
+            est = _agora_buffer_estado(body.dominio_id)
+            entradas = est.get("entradas") or None
+            origen = f"Ingesta en vivo ({est.get('n_nodos', 0)} nodo(s) del buffer)"
+        elif body.fuente == "demo":
+            entradas = None
+        return _agora_triangular(body.dominio_id, entradas, body.umbral, origen)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@api_router.get("/agora/umbral/{dominio_id}")
+async def agora_get_umbral(dominio_id: str):
+    return {"dominio_id": dominio_id, "umbral": _agora_get_umbral(dominio_id)}
+
+
+@api_router.put("/agora/umbral/{dominio_id}")
+async def agora_set_umbral(dominio_id: str, body: AgoraUmbralInput):
+    return _agora_set_umbral(dominio_id, body.umbral)
+
+
+@api_router.post("/agora/ingesta/webhook/{dominio_id}")
+async def agora_ingesta_webhook(dominio_id: str, body: Any = Body(...)):
+    """Recibe coordenadas en vivo del cliente: {nodo: {observable: valor}}."""
+    try:
+        return _agora_buffer_recibir(dominio_id, body)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@api_router.get("/agora/ingesta/buffer/{dominio_id}")
+async def agora_ingesta_buffer(dominio_id: str):
+    return _agora_buffer_estado(dominio_id)
+
+
+@api_router.delete("/agora/ingesta/buffer/{dominio_id}")
+async def agora_ingesta_vaciar(dominio_id: str):
+    return _agora_buffer_vaciar(dominio_id)
+
+
+@api_router.post("/agora/ingesta/archivo")
+async def agora_ingesta_archivo(
+    dominio_id: str = Form(...),
+    triangular_ahora: bool = Form(True),
+    files: List[UploadFile] = File(default=[]),
+):
+    """Parsea archivos (JSON {nodo:{obs}} o CSV con columna 'nodo') → entradas."""
+    entradas = {}
+    for f in (files or []):
+        datos = await f.read()
+        parsed = _agora_parse_archivo(f.filename, datos)
+        for nodo, obs in (parsed or {}).items():
+            if isinstance(obs, dict):
+                entradas.setdefault(nodo, {}).update(obs)
+    if not entradas:
+        raise HTTPException(status_code=400, detail="No se pudieron leer coordenadas de los archivos.")
+    if not triangular_ahora:
+        return {"dominio_id": dominio_id, "entradas": entradas}
+    try:
+        return _agora_triangular(dominio_id, entradas, None,
+                                 f"Ingesta por archivo ({len(entradas)} nodo(s))")
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except (ValueError, KeyError) as e:

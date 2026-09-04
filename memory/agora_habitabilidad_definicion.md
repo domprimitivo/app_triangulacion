@@ -120,3 +120,15 @@ Falta antes de construir:
 - Endpoints: `GET /api/agora/dominios`, `GET /api/agora/dominio/{id}`, `POST /api/agora/triangular`.
 - Frontend `Agora.jsx` en `/agora`. Regresión: `backend/tests/test_agora.py`.
 
+
+## ✅ AMPLIADO (2026-06) — Ingesta real + Umbral de alerta — iteration_10.json (21/21 backend + frontend)
+- **Ingesta real** (3 fuentes en `/agora`): Manual (editar coordenadas), **Archivo** (JSON `{nodo:{obs}}`
+  o CSV con columna `nodo` + observables) y **En vivo** (webhook por dominio con buffer que hace merge).
+  Endpoints: `POST /api/agora/ingesta/archivo` (multipart), `POST /api/agora/ingesta/webhook/{id}`,
+  `GET/DELETE /api/agora/ingesta/buffer/{id}`. `triangular` acepta `fuente` = manual|demo|ingesta_live.
+- **Umbral de alerta por dominio** (persistido en `flujo/agora/umbrales.json`, default 0.5):
+  `GET/PUT /api/agora/umbral/{id}`. `triangular` marca `alerta` por nodo (x>=umbral), devuelve
+  `n_alertas`; el plano dibuja la línea de umbral y pinta en rojo los nodos en alerta.
+- **Guía de reintegración de la ciberseguridad** (rutas/endpoints retirados) en
+  `/app/memory/guia_repo_a_ciberseguridad.md`.
+

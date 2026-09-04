@@ -283,25 +283,152 @@ def demo_entradas(dominio_id: str) -> dict[str, dict]:
     return entradas
 
 
-def triangular(dominio_id: str, entradas: Optional[dict] = None) -> dict:
+def triangular(dominio_id: str, entradas: Optional[dict] = None,
+               umbral: Optional[float] = None, origen_label: Optional[str] = None) -> dict:
     dom = cargar_dominio(dominio_id)
     con = Conector(dom, dominio_id)
     if not entradas:
         entradas = demo_entradas(dominio_id)
         origen = "Operación demo (coordenadas conocidas plausibles)"
     else:
-        origen = "Ingesta de coordenadas conocidas"
+        origen = origen_label or "Ingesta de coordenadas conocidas"
+    if umbral is None:
+        umbral = obtener_umbral(dominio_id)
     paquetes = con.generar_todos(entradas)
     # Puntos del plano (x = disonancia, y = coordenada dinero/interna)
     plano = []
     for nodo, paq in paquetes.items():
         if paq.get("x") is None:
             continue
-        plano.append({"nodo": nodo, "x": round(paq["x"], 3),
+        x = round(paq["x"], 3)
+        alerta = x >= umbral
+        paq["alerta"] = alerta
+        plano.append({"nodo": nodo, "x": x, "alerta": alerta,
                       "y": paq["y"].get("valor"), "y_tipo": paq["y"].get("tipo"),
                       "tipo": paq["tipo"], "avance": paq["avance"]})
+    n_alertas = sum(1 for p in plano if p["alerta"])
     return {
         "dominio_id": dominio_id, "etiqueta": DOMINIOS.get(dominio_id, dominio_id),
         "dominio": dom.get("dominio"), "triangulacion": dom.get("triangulacion", ""),
-        "origen": origen, "paquetes": paquetes, "plano": plano,
+        "origen": origen, "umbral": umbral, "n_alertas": n_alertas,
+        "paquetes": paquetes, "plano": plano,
     }
+
+
+# ── Umbral de alerta por dominio ─────────────────────────────────────────────
+UMBRALES_PATH = AGORA_DIR / "umbrales.json"
+UMBRAL_DEFAULT = 0.5
+
+
+def _leer_umbrales() -> dict:
+    if UMBRALES_PATH.exists():
+        try:
+            return json.loads(UMBRALES_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
+def obtener_umbral(dominio_id: str) -> float:
+    return float(_leer_umbrales().get(dominio_id, UMBRAL_DEFAULT))
+
+
+def fijar_umbral(dominio_id: str, valor: float) -> dict:
+    valor = max(0.0, min(1.0, float(valor)))
+    u = _leer_umbrales()
+    u[dominio_id] = valor
+    UMBRALES_PATH.write_text(json.dumps(u, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"dominio_id": dominio_id, "umbral": valor}
+
+
+# ── Ingesta real: buffer webhook + parseo de archivos ────────────────────────
+INGESTA_DIR = AGORA_DIR / "ingesta"
+
+
+def _buffer_path(dominio_id: str) -> Path:
+    INGESTA_DIR.mkdir(parents=True, exist_ok=True)
+    return INGESTA_DIR / f"{dominio_id}.json"
+
+
+def buffer_recibir(dominio_id: str, payload) -> dict:
+    """Recibe coordenadas en vivo. Formato: {nodo: {obs...}} o {entradas:{...}}.
+    Hace merge por nodo (valores más recientes ganan)."""
+    from datetime import datetime, timezone
+    if isinstance(payload, dict) and "entradas" in payload:
+        payload = payload["entradas"]
+    if not isinstance(payload, dict):
+        raise ValueError("El payload debe ser {nodo: {observable: valor}}.")
+    p = _buffer_path(dominio_id)
+    actual = {}
+    if p.exists():
+        try:
+            actual = json.loads(p.read_text(encoding="utf-8")).get("entradas", {})
+        except Exception:
+            actual = {}
+    for nodo, obs in payload.items():
+        if isinstance(obs, dict):
+            actual.setdefault(nodo, {}).update(obs)
+    data = {"entradas": actual, "ultimo": datetime.now(timezone.utc).isoformat(),
+            "n_nodos": len(actual)}
+    p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"dominio_id": dominio_id, "nodos_en_buffer": list(actual.keys()),
+            "ultimo": data["ultimo"]}
+
+
+def buffer_estado(dominio_id: str) -> dict:
+    p = _buffer_path(dominio_id)
+    if not p.exists():
+        return {"dominio_id": dominio_id, "entradas": {}, "n_nodos": 0, "ultimo": None}
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        d = {"entradas": {}}
+    return {"dominio_id": dominio_id, "entradas": d.get("entradas", {}),
+            "n_nodos": len(d.get("entradas", {})), "ultimo": d.get("ultimo")}
+
+
+def buffer_vaciar(dominio_id: str) -> dict:
+    p = _buffer_path(dominio_id)
+    if p.exists():
+        p.unlink()
+    return {"dominio_id": dominio_id, "vaciado": True}
+
+
+def parse_archivo(nombre: str, datos: bytes) -> dict:
+    """Parsea JSON ({nodo:{obs}} o {entradas:{...}}) o CSV (columna 'nodo' + observables)."""
+    import csv
+    import io
+    try:
+        texto = datos.decode("utf-8")
+    except Exception:
+        return {}
+    st = texto.strip()
+    # JSON
+    try:
+        obj = json.loads(st)
+        if isinstance(obj, dict):
+            return obj.get("entradas", obj)
+    except Exception:
+        pass
+    # CSV: cada fila un nodo; columna 'nodo' + observables numéricos
+    entradas = {}
+    try:
+        reader = csv.DictReader(io.StringIO(texto))
+        for row in reader:
+            low = {(k or "").strip().lower(): v for k, v in row.items()}
+            nodo = low.get("nodo") or low.get("node") or low.get("subdominio")
+            if not nodo:
+                continue
+            e = {}
+            for k, v in row.items():
+                kk = (k or "").strip()
+                if kk.lower() in ("nodo", "node", "subdominio") or v is None or v == "":
+                    continue
+                try:
+                    e[kk] = float(v)
+                except ValueError:
+                    e[kk] = v
+            entradas[nodo.strip()] = e
+    except Exception:
+        return {}
+    return entradas

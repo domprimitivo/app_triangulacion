@@ -214,3 +214,152 @@ def test_gobierno_nomina_sec_obs_ok(s):
     assert r.status_code == 200
     paq = r.json()["paquetes"]
     assert paq["nomina"]["x"] is not None
+
+
+# ============================================================================
+# NEW FEATURES: Umbral de alerta + Ingesta real (webhook + archivo)
+# ============================================================================
+
+# -- Umbral: GET/PUT persistencia ---------------------------------------------
+def test_umbral_default_get(s):
+    # Reset first to make deterministic (default 0.5)
+    s.put(f"{API}/agora/umbral/hotel", json={"umbral": 0.5}, timeout=10)
+    r = s.get(f"{API}/agora/umbral/hotel", timeout=10)
+    assert r.status_code == 200
+    data = r.json()
+    assert data["dominio_id"] == "hotel"
+    assert data["umbral"] == 0.5
+
+
+def test_umbral_put_persiste(s):
+    r = s.put(f"{API}/agora/umbral/hotel", json={"umbral": 0.6}, timeout=10)
+    assert r.status_code == 200
+    assert abs(r.json()["umbral"] - 0.6) < 1e-6
+    # GET vuelve a 0.6
+    r2 = s.get(f"{API}/agora/umbral/hotel", timeout=10)
+    assert abs(r2.json()["umbral"] - 0.6) < 1e-6
+    # cleanup
+    s.put(f"{API}/agora/umbral/hotel", json={"umbral": 0.5}, timeout=10)
+
+
+# -- Triangular con alertas y override ----------------------------------------
+def test_triangular_hotel_alertas(s):
+    # Set umbral 0.5 first
+    s.put(f"{API}/agora/umbral/hotel", json={"umbral": 0.5}, timeout=10)
+    r = s.post(f"{API}/agora/triangular", json={"dominio_id": "hotel", "fuente": "demo"}, timeout=15)
+    assert r.status_code == 200
+    data = r.json()
+    assert "umbral" in data
+    assert "n_alertas" in data
+    assert data["umbral"] == 0.5
+    for p in data["plano"]:
+        assert "alerta" in p
+        assert p["alerta"] == (p["x"] >= data["umbral"])
+    base_alertas = data["n_alertas"]
+
+    # Bajar umbral a 0.2 y re-triangular → n_alertas incrementa (o >=)
+    s.put(f"{API}/agora/umbral/hotel", json={"umbral": 0.2}, timeout=10)
+    r2 = s.post(f"{API}/agora/triangular", json={"dominio_id": "hotel", "fuente": "demo"}, timeout=15)
+    assert r2.status_code == 200
+    d2 = r2.json()
+    assert d2["umbral"] == 0.2
+    assert d2["n_alertas"] >= base_alertas
+    # restore
+    s.put(f"{API}/agora/umbral/hotel", json={"umbral": 0.5}, timeout=10)
+
+
+def test_triangular_umbral_override_no_persiste(s):
+    s.put(f"{API}/agora/umbral/hotel", json={"umbral": 0.5}, timeout=10)
+    r = s.post(f"{API}/agora/triangular",
+               json={"dominio_id": "hotel", "umbral": 0.9, "fuente": "demo"}, timeout=15)
+    assert r.status_code == 200
+    assert abs(r.json()["umbral"] - 0.9) < 1e-6
+    # persistido sigue en 0.5
+    r2 = s.get(f"{API}/agora/umbral/hotel", timeout=10)
+    assert r2.json()["umbral"] == 0.5
+
+
+# -- Webhook: buffer merge / DELETE -------------------------------------------
+def test_webhook_buffer_merge_y_vaciar(s):
+    # cleanup
+    s.delete(f"{API}/agora/ingesta/buffer/gobierno", timeout=10)
+
+    payload1 = {"agua": {"volumen_extraido_m3": 5000, "energia_kwh": 1000,
+                          "y_senal": 0.7, "y_gamma": 0.5}}
+    r = s.post(f"{API}/agora/ingesta/webhook/gobierno", json=payload1, timeout=10)
+    assert r.status_code == 200
+    assert "agua" in r.json()["nodos_en_buffer"]
+
+    r2 = s.get(f"{API}/agora/ingesta/buffer/gobierno", timeout=10)
+    assert r2.status_code == 200
+    b = r2.json()
+    assert b["n_nodos"] >= 1
+    assert "agua" in b["entradas"]
+
+    # Segundo POST con otro nodo → merge
+    payload2 = {"nomina": {"nomina_pagada": 100.0, "empleados_biometricos": 90.0,
+                            "concentracion_cuentas": 0.4,
+                            "y_senal": 0.6, "y_gamma": 0.5}}
+    r3 = s.post(f"{API}/agora/ingesta/webhook/gobierno", json=payload2, timeout=10)
+    assert r3.status_code == 200
+    b2 = s.get(f"{API}/agora/ingesta/buffer/gobierno", timeout=10).json()
+    assert "agua" in b2["entradas"] and "nomina" in b2["entradas"]
+
+    # DELETE vacía
+    d = s.delete(f"{API}/agora/ingesta/buffer/gobierno", timeout=10)
+    assert d.status_code == 200
+    b3 = s.get(f"{API}/agora/ingesta/buffer/gobierno", timeout=10).json()
+    assert b3["n_nodos"] == 0
+
+
+def test_triangular_ingesta_live(s):
+    s.delete(f"{API}/agora/ingesta/buffer/gobierno", timeout=10)
+    payload = {"agua": {"volumen_extraido_m3": 5000, "energia_kwh": 1000,
+                         "y_senal": 0.7, "y_gamma": 0.5}}
+    s.post(f"{API}/agora/ingesta/webhook/gobierno", json=payload, timeout=10)
+    r = s.post(f"{API}/agora/triangular",
+               json={"dominio_id": "gobierno", "fuente": "ingesta_live"}, timeout=15)
+    assert r.status_code == 200
+    data = r.json()
+    assert "Ingesta en vivo" in data["origen"]
+    plano_nodos = {p["nodo"] for p in data["plano"]}
+    assert plano_nodos == {"agua"}
+    # cleanup
+    s.delete(f"{API}/agora/ingesta/buffer/gobierno", timeout=10)
+
+
+# -- Ingesta por archivo JSON / CSV -------------------------------------------
+def test_ingesta_archivo_json(s):
+    import json as _json
+    payload = {"housekeeping": {
+        "insumo_comprado": 1250.0, "habitacion_noche": 1000.0,
+        "concentracion_proveedor": 0.5,
+        "habitaciones_atendidas": 100.0, "horas_camarista": 50.0,
+        "y_senal": 0.6, "y_gamma": 0.5,
+    }}
+    files = {"files": ("hk.json", _json.dumps(payload).encode("utf-8"), "application/json")}
+    data = {"dominio_id": "hotel"}
+    r = s.post(f"{API}/agora/ingesta/archivo", files=files, data=data, timeout=15)
+    assert r.status_code == 200, r.text
+    resp = r.json()
+    plano_nodos = {p["nodo"] for p in resp["plano"]}
+    assert "housekeeping" in plano_nodos
+
+
+def test_ingesta_archivo_csv(s):
+    csv_text = ("nodo,insumo_comprado,habitacion_noche,concentracion_proveedor,"
+                "habitaciones_atendidas,horas_camarista,y_senal,y_gamma\n"
+                "housekeeping,1250,1000,0.5,100,50,0.6,0.5\n")
+    files = {"files": ("hk.csv", csv_text.encode("utf-8"), "text/csv")}
+    data = {"dominio_id": "hotel"}
+    r = s.post(f"{API}/agora/ingesta/archivo", files=files, data=data, timeout=15)
+    assert r.status_code == 200, r.text
+    plano_nodos = {p["nodo"] for p in r.json()["plano"]}
+    assert "housekeeping" in plano_nodos
+
+
+def test_ingesta_archivo_vacio_400(s):
+    files = {"files": ("empty.txt", b"", "text/plain")}
+    data = {"dominio_id": "hotel"}
+    r = s.post(f"{API}/agora/ingesta/archivo", files=files, data=data, timeout=10)
+    assert r.status_code == 400
