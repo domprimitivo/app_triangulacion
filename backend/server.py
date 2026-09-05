@@ -1820,6 +1820,8 @@ from agora_conector import (
     buffer_estado as _agora_buffer_estado,
     buffer_vaciar as _agora_buffer_vaciar,
     parse_archivo as _agora_parse_archivo,
+    leer_historial as _agora_historial,
+    vaciar_historial as _agora_vaciar_historial,
 )
 
 
@@ -1879,6 +1881,17 @@ async def agora_get_umbral(dominio_id: str):
 @api_router.put("/agora/umbral/{dominio_id}")
 async def agora_set_umbral(dominio_id: str, body: AgoraUmbralInput):
     return _agora_set_umbral(dominio_id, body.umbral)
+
+
+@api_router.get("/agora/historial/{dominio_id}")
+async def agora_historial(dominio_id: str, limit: int = 50):
+    """Corridas guardadas por dominio + series de disonancia por nodo en el tiempo."""
+    return _agora_historial(dominio_id, limit)
+
+
+@api_router.delete("/agora/historial/{dominio_id}")
+async def agora_vaciar_historial(dominio_id: str):
+    return _agora_vaciar_historial(dominio_id)
 
 
 @api_router.post("/agora/ingesta/webhook/{dominio_id}")

@@ -284,7 +284,8 @@ def demo_entradas(dominio_id: str) -> dict[str, dict]:
 
 
 def triangular(dominio_id: str, entradas: Optional[dict] = None,
-               umbral: Optional[float] = None, origen_label: Optional[str] = None) -> dict:
+               umbral: Optional[float] = None, origen_label: Optional[str] = None,
+               guardar: bool = True) -> dict:
     dom = cargar_dominio(dominio_id)
     con = Conector(dom, dominio_id)
     if not entradas:
@@ -307,12 +308,15 @@ def triangular(dominio_id: str, entradas: Optional[dict] = None,
                       "y": paq["y"].get("valor"), "y_tipo": paq["y"].get("tipo"),
                       "tipo": paq["tipo"], "avance": paq["avance"]})
     n_alertas = sum(1 for p in plano if p["alerta"])
-    return {
+    resultado = {
         "dominio_id": dominio_id, "etiqueta": DOMINIOS.get(dominio_id, dominio_id),
         "dominio": dom.get("dominio"), "triangulacion": dom.get("triangulacion", ""),
         "origen": origen, "umbral": umbral, "n_alertas": n_alertas,
         "paquetes": paquetes, "plano": plano,
     }
+    if guardar and plano:
+        guardar_corrida(dominio_id, resultado)
+    return resultado
 
 
 # ── Umbral de alerta por dominio ─────────────────────────────────────────────
@@ -432,3 +436,59 @@ def parse_archivo(nombre: str, datos: bytes) -> dict:
     except Exception:
         return {}
     return entradas
+
+
+# ── Historial de triangulaciones por dominio ─────────────────────────────────
+HISTORIAL_DIR = AGORA_DIR / "historial"
+
+
+def _hist_path(dominio_id: str) -> Path:
+    HISTORIAL_DIR.mkdir(parents=True, exist_ok=True)
+    return HISTORIAL_DIR / f"{dominio_id}.jsonl"
+
+
+def guardar_corrida(dominio_id: str, resultado: dict) -> None:
+    from datetime import datetime, timezone
+    corrida = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "umbral": resultado.get("umbral"),
+        "origen": resultado.get("origen"),
+        "n_alertas": resultado.get("n_alertas", 0),
+        "nodos": [{"nodo": p["nodo"], "x": p["x"], "y": p["y"], "alerta": p["alerta"]}
+                  for p in resultado.get("plano", [])],
+    }
+    with open(_hist_path(dominio_id), "a", encoding="utf-8") as f:
+        f.write(json.dumps(corrida, ensure_ascii=False) + "\n")
+
+
+def leer_historial(dominio_id: str, limit: int = 50) -> dict:
+    p = _hist_path(dominio_id)
+    if not p.exists():
+        return {"dominio_id": dominio_id, "corridas": [], "series": {}, "nodos": []}
+    lineas = [l for l in p.read_text(encoding="utf-8").split("\n") if l.strip()]
+    corridas = []
+    for l in lineas:
+        try:
+            corridas.append(json.loads(l))
+        except Exception:
+            continue
+    corridas = corridas[-limit:]
+    # Series por nodo: evolución de x a lo largo de las corridas
+    series: dict[str, list] = {}
+    nodos: list[str] = []
+    for i, c in enumerate(corridas):
+        for n in c.get("nodos", []):
+            series.setdefault(n["nodo"], []).append(
+                {"i": i, "ts": c["ts"], "x": n["x"], "alerta": n["alerta"]})
+            if n["nodo"] not in nodos:
+                nodos.append(n["nodo"])
+    return {"dominio_id": dominio_id, "corridas": corridas, "series": series,
+            "nodos": nodos, "total": len(lineas)}
+
+
+def vaciar_historial(dominio_id: str) -> dict:
+    p = _hist_path(dominio_id)
+    if p.exists():
+        p.unlink()
+    return {"dominio_id": dominio_id, "vaciado": True}
+

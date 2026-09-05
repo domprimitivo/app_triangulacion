@@ -132,3 +132,16 @@ Falta antes de construir:
 - **Guía de reintegración de la ciberseguridad** (rutas/endpoints retirados) en
   `/app/memory/guia_repo_a_ciberseguridad.md`.
 
+
+## ✅ AMPLIADO (2026-06) — Historial + Exportar reporte
+- **Historial de triangulaciones por dominio**: cada corrida se guarda (append) en
+  `flujo/agora/historial/{dominio}.jsonl`. `GET /api/agora/historial/{id}?limit=` devuelve corridas
+  + `series` por nodo (evolución de x en el tiempo) + `nodos`. `DELETE` para vaciar. `triangular`
+  guarda automáticamente (param `guardar=True`). UI: botón "Historial" + selector de nodo + gráfica
+  de evolución (SVG) con línea de umbral (`agora-historial`, `agora-evolucion-svg`).
+- **Exportar reporte** (cliente, sin backend): botón **CSV** (tabla de disonancias) y **Reporte**
+  (HTML autocontenido con el plano SVG + la tabla + metadatos, compartible). testids
+  `agora-export-csv`, `agora-export-html`.
+- Nota: los 7 dominios ya están completos (cada `dominio_*.json` trae sus subdominios/nodos); no se
+  requieren más archivos.
+

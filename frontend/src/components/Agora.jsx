@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft, Play, Crosshair, Sparkles, Layers, Activity, Info, ChevronDown, ChevronRight,
-  Upload, Radio, SlidersHorizontal, AlertTriangle,
+  Upload, Radio, SlidersHorizontal, AlertTriangle, Download, FileCode, History, Trash2,
 } from 'lucide-react';
 import { Watermark } from './Watermark';
 
@@ -32,6 +32,13 @@ export const Agora = () => {
   const [umbral, setUmbral] = useState(0.5);
   const [files, setFiles] = useState([]);
   const [buffer, setBuffer] = useState(null);
+  const [hist, setHist] = useState(null);
+  const [nodoSel, setNodoSel] = useState('');
+
+  const verHistorial = () => domId && axios.get(`${API}/agora/historial/${domId}`).then((r) => {
+    setHist(r.data);
+    if ((r.data.nodos || []).length) setNodoSel(r.data.nodos[0]);
+  }).catch(() => {});
 
   useEffect(() => {
     axios.get(`${API}/agora/dominios`).then((r) => {
@@ -87,9 +94,38 @@ export const Agora = () => {
         });
       }
       setRes(r.data);
+      if (hist) verHistorial();
     } catch (e) {
       setMsg(e?.response?.data?.detail || 'Error al triangular.');
     } finally { setLoading(false); }
+  };
+
+  const descargar = (nombre, contenido, tipo) => {
+    const blob = new Blob([contenido], { type: tipo });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = nombre; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportarCSV = () => {
+    if (!res) return;
+    const head = 'nodo,x_disonancia,y,y_tipo,avance,alerta';
+    const rows = res.plano.map((p) => `${p.nodo},${p.x},${p.y ?? ''},${p.y_tipo},${p.avance ?? ''},${p.alerta ? 'SI' : 'no'}`);
+    descargar(`agora_${res.dominio_id}_disonancias.csv`, [head, ...rows].join('\n'), 'text/csv');
+  };
+
+  const exportarHTML = () => {
+    if (!res) return;
+    const filas = res.plano.map((p) => `<tr style="background:${p.alerta ? '#FBEEEA' : '#fff'}"><td>${p.nodo}</td><td>${p.x}</td><td>${p.y ?? '—'} ${p.y_tipo}</td><td>${p.avance ?? '—'}</td><td>${p.alerta ? '⚠️ ALERTA' : 'ok'}</td></tr>`).join('');
+    const puntos = res.plano.map((p) => {
+      const px = 40 + p.x * 380, py = 320 - (p.y ?? 0) * 280;
+      const col = p.x >= res.umbral ? '#C0392B' : p.x >= res.umbral * 0.7 ? '#E0A82E' : '#4E7A34';
+      return `<circle cx="${px}" cy="${py}" r="7" fill="${col}"/><text x="${px + 9}" y="${py + 3}" font-size="9">${p.nodo}</text>`;
+    }).join('');
+    const ux = 40 + res.umbral * 380;
+    const svg = `<svg viewBox="0 0 460 360" width="460"><line x1="40" y1="320" x2="420" y2="320" stroke="#D8C8A6"/><line x1="40" y1="40" x2="40" y2="320" stroke="#D8C8A6"/><line x1="${ux}" y1="40" x2="${ux}" y2="320" stroke="#C0392B" stroke-dasharray="4 3"/><text x="${ux}" y="34" font-size="9" fill="#C0392B" text-anchor="middle">umbral ${res.umbral}</text><text x="420" y="336" font-size="10" fill="#8A7A66" text-anchor="end">disonancia →</text>${puntos}</svg>`;
+    const html = `<!doctype html><html lang="es"><meta charset="utf-8"><title>Ágora — ${res.dominio} — reporte</title><body style="font-family:system-ui;background:#E9DFC9;color:#3A2E28;padding:24px"><h1 style="color:#7E3A26">Ágora · ${res.dominio}</h1><p>Triangulación: ${res.triangulacion} · Umbral: ${res.umbral} · Alertas: ${res.n_alertas} · Origen: ${res.origen}</p><p style="color:#8A7A66">Generado ${new Date().toLocaleString()}</p><h3>Plano de triangulación (x vs y)</h3>${svg}<h3>Disonancias por nodo</h3><table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse"><tr><th>nodo</th><th>x (disonancia)</th><th>y</th><th>avance</th><th>estado</th></tr>${filas}</table></body></html>`;
+    descargar(`agora_${res.dominio_id}_reporte.html`, html, 'text/html');
   };
 
   const fuentes = [['manual', 'Manual', Crosshair], ['archivo', 'Archivo', Upload], ['ingesta_live', 'En vivo', Radio]];
@@ -254,7 +290,14 @@ export const Agora = () => {
                   <Plano puntos={res.plano} umbral={res.umbral} />
                 </div>
                 <div className="p-5 rounded-xl" style={{ background: C.panel, border: `1px solid ${C.border}` }} data-testid="agora-disonancias">
-                  <div className="font-semibold text-sm mb-3" style={{ color: C.brickDark }}>Disonancias por nodo</div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="font-semibold text-sm" style={{ color: C.brickDark }}>Disonancias por nodo</div>
+                    <div className="flex gap-2">
+                      <button onClick={exportarCSV} data-testid="agora-export-csv" className="text-xs px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1" style={{ background: C.sand, border: `1px solid ${C.border}`, color: C.ink }}><Download size={12} /> CSV</button>
+                      <button onClick={exportarHTML} data-testid="agora-export-html" className="text-xs px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1" style={{ background: C.sand, border: `1px solid ${C.border}`, color: C.ink }}><FileCode size={12} /> Reporte</button>
+                      <button onClick={verHistorial} data-testid="agora-ver-historial" className="text-xs px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1" style={{ background: C.sky, color: '#fff' }}><History size={12} /> Historial</button>
+                    </div>
+                  </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs">
                       <thead><tr style={{ color: C.muted }} className="text-left"><th className="py-1 pr-2">Nodo</th><th>x (disonancia)</th><th>y</th><th>avance</th></tr></thead>
@@ -294,7 +337,60 @@ export const Agora = () => {
             )}
           </div>
         </div>
+
+        {/* Historial de triangulaciones */}
+        {hist && (
+          <div className="mt-6 p-5 rounded-xl" style={{ background: C.panel, border: `1px solid ${C.border}` }} data-testid="agora-historial">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 font-semibold text-sm" style={{ color: C.brickDark }}>
+                <History size={16} /> Historial de triangulaciones ({hist.corridas.length} corrida{hist.corridas.length === 1 ? '' : 's'})
+              </div>
+              <div className="flex items-center gap-2">
+                {hist.nodos.length > 0 && (
+                  <select value={nodoSel} onChange={(e) => setNodoSel(e.target.value)} data-testid="agora-hist-nodo"
+                    className="text-xs p-1.5 rounded-lg" style={{ background: C.sand, border: `1px solid ${C.border}`, color: C.ink }}>
+                    {hist.nodos.map((n) => <option key={n} value={n}>{n}</option>)}
+                  </select>
+                )}
+                <button onClick={async () => { await axios.delete(`${API}/agora/historial/${domId}`); setHist(null); }}
+                  data-testid="agora-hist-vaciar" className="text-xs px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1" style={{ background: C.sand, border: `1px solid ${C.border}`, color: C.brickDark }}>
+                  <Trash2 size={12} /> Vaciar
+                </button>
+              </div>
+            </div>
+            {hist.corridas.length === 0 ? (
+              <p className="text-xs" style={{ color: C.muted }}>Aún no hay corridas guardadas para este dominio. Triangula para empezar a registrar la evolución.</p>
+            ) : (
+              <Evolucion serie={hist.series[nodoSel] || []} umbral={hist.corridas[hist.corridas.length - 1]?.umbral ?? 0.5} nodo={nodoSel} />
+            )}
+          </div>
+        )}
+
       </div>
+    </div>
+  );
+};
+
+const Evolucion = ({ serie, umbral, nodo }) => {
+  if (!serie || serie.length === 0) return <div className="text-xs" style={{ color: C.muted }}>Sin datos para {nodo}.</div>;
+  const W = 720, H = 180, pad = 30;
+  const xs = serie.map((_, i) => pad + (i * (W - 2 * pad)) / Math.max(serie.length - 1, 1));
+  const y = (v) => H - pad - v * (H - 2 * pad);
+  const pts = serie.map((s, i) => `${xs[i]},${y(s.x)}`).join(' ');
+  return (
+    <div>
+      <p className="text-[11px] mb-2" style={{ color: C.muted }}>Evolución de la disonancia de <strong>{nodo}</strong> (x) por corrida · umbral {umbral}</p>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 220 }} data-testid="agora-evolucion-svg">
+        <line x1={pad} y1={y(umbral)} x2={W - pad} y2={y(umbral)} stroke={C.red} strokeDasharray="4 3" strokeWidth="1" opacity="0.7" />
+        <line x1={pad} y1={H - pad} x2={W - pad} y2={H - pad} stroke={C.border} strokeWidth="1" />
+        <polyline points={pts} fill="none" stroke={C.sky} strokeWidth="2" />
+        {serie.map((s, i) => (
+          <g key={i}>
+            <circle cx={xs[i]} cy={y(s.x)} r="3.5" fill={s.alerta ? C.red : C.grass} />
+            <text x={xs[i]} y={H - pad + 12} fontSize="8" fill={C.muted} textAnchor="middle">{i + 1}</text>
+          </g>
+        ))}
+      </svg>
     </div>
   );
 };
