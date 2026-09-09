@@ -16,6 +16,7 @@ import io
 import base64
 import threading
 from pathlib import Path
+from runtime_paths import get_base_dir
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any, Literal
 import uuid
@@ -23,24 +24,8 @@ from datetime import datetime, timezone
 import shutil
 from local_storage import guardar_stream
 
-def _resolver_root_dir() -> Path:
-    """
-    Resuelve la carpeta base donde viven config.json, mileforum.db, uploads/, etc.
 
-    - Si el proceso corre como .exe empaquetado con PyInstaller (--onefile),
-      sys.frozen es True y sys.executable apunta al .exe real en disco.
-      __file__ en ese caso apunta a una carpeta temporal (sys._MEIPASS) que
-      se recrea en cada arranque y se borra al cerrar — NUNCA usar __file__
-      para datos persistentes en este modo.
-    - Si corre como script normal (python server.py / uvicorn server:app),
-      __file__ sí apunta a la carpeta real del archivo y es seguro usarlo.
-    """
-    if getattr(sys, "frozen", False):
-        return Path(sys.executable).parent
-    return Path(__file__).parent
-
-
-ROOT_DIR = _resolver_root_dir()
+ROOT_DIR = get_base_dir()
 
 CONFIG_PATH = ROOT_DIR / 'config.json'
 UPLOADS_DIR = ROOT_DIR / 'uploads'

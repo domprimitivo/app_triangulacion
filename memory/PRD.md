@@ -264,3 +264,31 @@ Detección de categoría por NOMBRE de archivo (keywords), comportamiento hereda
 - (Opcional, requiere OK) mostrar la salida `agora` del embudo en `/archivos` (hoy el frontend
   la recibe pero no la pinta; el usuario pidió NO tocar frontend).
 - Bimestral: extraer endpoints a router propio; persistir `last_tick_at`.
+
+## Actualización 2026-09-09 — Infraestructura de EMPAQUETADO FINAL (.exe Windows)
+
+**Objetivo:** archivos de infraestructura para empaquetar el backend como ejecutable único
+(PyInstaller) y orquestar backend + interfaz Flutter en Windows. Rutas robustas frozen-aware
+para BD y modelos que persisten en disco.
+
+**Implementado:**
+- `backend/runtime_paths.py` (nuevo): `get_base_dir()` (carpeta PERSISTENTE: `Path(sys.executable).parent`
+  si `sys.frozen`, si no la carpeta de `backend/`) y `get_resource_dir()` (`sys._MEIPASS`).
+- Rutas de datos/modelos ahora usan `get_base_dir()` preservando estructura (comportamiento IDÉNTICO
+  en dev): `server.py` (ROOT_DIR/`mileforum.db`, ya lo era), `flujo_kpis.py` (BASE + MAIN_DIR),
+  `agora_conector.py` (BASE), `aprendiz_motor/{notebook_engine,bundle_loader,bimestral_ajuste}.py`
+  (modelos y `data/modelos`). Se eliminó el `Path("data/modelos")` relativo a CWD (bug latente).
+- `backend/build_backend.bat` (nuevo): PyInstaller `--onefile --name mileforum_backend` con
+  hidden-imports de módulos importados de forma perezosa + `--collect-submodules aprendiz_motor/uvicorn/apscheduler`
+  + `--collect-all torch`. Ensambla `dist\Mileforum\` con el layout operativo: `backend\mileforum_backend.exe`
+  + carpetas de datos junto al exe, `cucurucho_*.json` en `backend.parent` (= raíz del paquete),
+  `Iniciar_App.bat` y `app\` para el exe de Flutter. Los datos NO se embeben (el Aprendiz reescribe
+  modelos in-place y el operador edita los cucurucho → deben ser persistentes en disco).
+- `Iniciar_App.bat` (raíz del proyecto, nuevo): arranca `mileforum_backend.exe` minimizado, espera
+  a `http://127.0.0.1:8001/api/` (poll con PowerShell, hasta 30s), lanza `app\mileforum_app.exe`
+  (Flutter) con `/wait`, y al cerrar la interfaz hace `taskkill mileforum_backend.exe /F`.
+
+**Nota:** los `.bat` son entregables Windows (no ejecutables en el contenedor Linux). El refactor
+de rutas Python fue verificado (imports OK + endpoints agora/embudo responden tras reinicio).
+Diferencias vs plantilla original: BD = `mileforum.db` (no aprendiz.db); modelos = `.pt` en bundles
+(no `.npz`); "catalogs/models" → `flujo/`+`cucurucho_*.json` y `bundles/`+`aprendiz_motor/modelos/`.

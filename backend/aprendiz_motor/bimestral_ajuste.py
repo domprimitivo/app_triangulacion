@@ -172,7 +172,8 @@ class BundleRefs:
         self.dominio = dominio
         self.bundle_name = BUNDLE_NAMES.get(dominio)
         # El bundle "activo" vive en aprendiz_motor/modelos/ (lo que carga el motor)
-        self.modelos_dir = Path(__file__).parent / "modelos"
+        from runtime_paths import get_base_dir
+        self.modelos_dir = get_base_dir() / "aprendiz_motor" / "modelos"
         self.modelos_dir.mkdir(parents=True, exist_ok=True)
         self.aprendiz_dir = root_dir / "aprendiz_data"
         self.learning_log = self.aprendiz_dir / f"{dominio}_learning_log.jsonl"

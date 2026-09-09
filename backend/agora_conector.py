@@ -17,7 +17,9 @@ from typing import Callable, Optional
 
 import numpy as np
 
-BASE = Path(__file__).resolve().parent
+from runtime_paths import get_base_dir
+
+BASE = get_base_dir()
 AGORA_DIR = BASE / "flujo" / "agora"
 
 # id corto (archivo) → etiqueta legible

@@ -30,7 +30,9 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 
-BUNDLES_DIR = Path("data/modelos")
+from runtime_paths import get_base_dir
+
+BUNDLES_DIR = get_base_dir() / "data" / "modelos"
 BUNDLES_DIR.mkdir(parents=True, exist_ok=True)
 
 # Mapa de nombres de bundle por dominio

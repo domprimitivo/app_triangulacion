@@ -25,10 +25,11 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
+from runtime_paths import get_base_dir
 from lazo_generico import DOMINIO_CVD, lazo_asesoria, lazo_agencia
 from compresion_geometrica import comprimir as _comprimir_codec
 
-BASE = Path(__file__).resolve().parent
+BASE = get_base_dir()
 FLUJO_DIR = BASE / "flujo"
 MEMORIA_DIR = FLUJO_DIR / "memoria"
 MAIN_DIR = BASE.parent  # /app (donde viven los cucurucho_*.json de los 6 dominios)

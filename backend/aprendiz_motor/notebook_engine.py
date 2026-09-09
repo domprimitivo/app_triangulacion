@@ -25,9 +25,11 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime
 
+from runtime_paths import get_base_dir
+
 logger = logging.getLogger(__name__)
 
-MODELOS_DIR = Path(__file__).parent / "modelos"
+MODELOS_DIR = get_base_dir() / "aprendiz_motor" / "modelos"
 
 # Mapa bundle por dominio_id
 BUNDLE_NAMES = {
