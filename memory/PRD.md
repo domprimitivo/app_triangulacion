@@ -233,3 +233,34 @@ de un panel empresa-céntrico**, alimentada por los 3 flujos, no como ruta aisla
 - Extraer endpoints bimestral a un router propio (server.py grande).
 - Persistir `last_tick_at` del scheduler para observabilidad.
 - UI en Flutter/React para mostrar estado del próximo ajuste y disparo manual.
+
+## Actualización 2026-09-09 — Cucurucho como EMBUDO ÚNICO (KPIs ∥ Ágora)
+
+**Objetivo (confirmado por el usuario):** el cucurucho es el embudo único; de UNA sola
+ingesta de archivos de operación prepara EN PARALELO (a) el bundle de KPIs holográficos
+(elemento de claridad, ya existía, intacto) y (b) las coordenadas LIMPIAS para la
+triangulación del Ágora (elemento de habitabilidad). "Todo pasa por el cucurucho".
+
+**Implementado (aditivo, sin romper nada, sin tocar frontend):**
+- `cucurucho_embudo.py` (nuevo): `preparar_agora(domain_id, archivos)` → base = `demo_entradas`
+  del dominio Ágora; AG3 limpia/agrega columnas de los archivos (por keyword de nombre de
+  archivo) y sobreescribe observables según `mapa_agora.columnas`; llama a `triangular` y
+  agrega `preparacion{dominio_agora, senales_agora, observables_aplicados, n_aplicados}`.
+  `except Exception` → None (el Ágora es aditivo, no compromete el bundle KPIs).
+- `flujo_kpis.py::ejecutar_flujo_dominio`: al final llama a `preparar_agora` (import perezoso)
+  y agrega el campo `agora` a la respuesta. Todos los campos previos + memoria comprimida
+  (archivos de agentes) se CONSERVAN.
+- Config: cada `cucurucho_{hotel,restaurante,retail,fabrica,logistica,clinica}_v1.json` ganó
+  el bloque `mapa_agora` (dominio_agora + categorias_operacion + columnas → observables del
+  `dominio_{sector}.json` del Ágora). Nuevo `cucurucho_gobierno_v1.json` (mapa_metricas +
+  mapa_agora) para continuidad (gobierno existía solo en el Ágora).
+- Continuidad verificada: hotel → embudo → AG3 limpia (compras + actividad) → 13 observables
+  aplicados → triangula → historial del Ágora actualizado. Los 6 dominios + gobierno sin errores.
+
+**Verificado:** 12/12 pruebas backend (testing agent, iteration_12). Sin bugs.
+Detección de categoría por NOMBRE de archivo (keywords), comportamiento heredado del sistema.
+
+**Backlog / Próximos:**
+- (Opcional, requiere OK) mostrar la salida `agora` del embudo en `/archivos` (hoy el frontend
+  la recibe pero no la pinta; el usuario pidió NO tocar frontend).
+- Bimestral: extraer endpoints a router propio; persistir `last_tick_at`.

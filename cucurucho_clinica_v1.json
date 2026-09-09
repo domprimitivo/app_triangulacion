@@ -410,5 +410,94 @@
         "caducados": 0.03
       }
     }
+  },
+  "mapa_agora": {
+    "dominio_agora": "clinica",
+    "categorias_operacion": {
+      "atencion": {
+        "keywords": [
+          "consulta",
+          "paciente",
+          "atencion",
+          "medico",
+          "estancia",
+          "cama",
+          "alta",
+          "ingreso",
+          "procedimiento",
+          "quirurg",
+          "muestra",
+          "laboratorio",
+          "prescrip",
+          "dosis"
+        ],
+        "columnas_esperadas": [
+          "consultas_reportadas",
+          "duracion_promedio_consulta",
+          "tiempo_total_atencion",
+          "horas_medico",
+          "pacientes_atendidos",
+          "procedimientos_reportados",
+          "material_utilizado",
+          "insumo_por_procedimiento",
+          "horas_quirurgicas",
+          "dias_estancia_reportados",
+          "ocupacion_cama_real",
+          "pacientes_ingresados",
+          "altas",
+          "pacientes_tratados",
+          "muestras_reportadas",
+          "reactivos_consumidos",
+          "horas_laboratorio",
+          "prescripciones_emitidas",
+          "dosis_promedio"
+        ]
+      },
+      "compras": {
+        "keywords": [
+          "farmaco",
+          "insumo",
+          "compra",
+          "proveedor",
+          "reactivo"
+        ],
+        "columnas_esperadas": [
+          "farmacos_comprados",
+          "concentracion_proveedor"
+        ]
+      }
+    },
+    "columnas": {
+      "consultas_medicas": {
+        "consultas_reportadas": "atencion.consultas_reportadas",
+        "duracion_promedio_consulta": "atencion.duracion_promedio_consulta",
+        "tiempo_total_atencion": "atencion.tiempo_total_atencion",
+        "horas_medico": "atencion.horas_medico",
+        "pacientes_atendidos": "atencion.pacientes_atendidos"
+      },
+      "procedimientos_clinicos": {
+        "procedimientos_reportados": "atencion.procedimientos_reportados",
+        "insumo_por_procedimiento": "atencion.insumo_por_procedimiento",
+        "material_utilizado": "atencion.material_utilizado",
+        "horas_quirurgicas": "atencion.horas_quirurgicas"
+      },
+      "estancias_hospitalarias": {
+        "dias_estancia_reportados": "atencion.dias_estancia_reportados",
+        "ocupacion_cama_real": "atencion.ocupacion_cama_real",
+        "pacientes_ingresados": "atencion.pacientes_ingresados",
+        "altas": "atencion.altas"
+      },
+      "farmacia": {
+        "farmacos_comprados": "compras.farmacos_comprados",
+        "pacientes_tratados": "atencion.pacientes_tratados",
+        "dosis_promedio": "atencion.dosis_promedio",
+        "prescripciones_emitidas": "atencion.prescripciones_emitidas"
+      },
+      "laboratorio_clinico": {
+        "muestras_reportadas": "atencion.muestras_reportadas",
+        "reactivos_consumidos": "atencion.reactivos_consumidos",
+        "horas_laboratorio": "atencion.horas_laboratorio"
+      }
+    }
   }
 }

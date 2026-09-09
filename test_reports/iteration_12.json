@@ -1,0 +1,20 @@
+{
+  "summary": "Backend-only verification of Cucurucho embudo único. 12/12 pytest cases pass. Cubre: (a) POST /api/flujo/ejecutar-dominio sin archivos para los 6 dominios empresariales devuelve el bundle previo intacto (kpis_holograficos, metricas_discretas, features_control, memoria, historial, lazo) + campo 'agora' con preparacion.dominio_agora, plano (nodos con x/alerta), n_alertas y origen 'Cucurucho · embudo único (demo del dominio)'. (b) POST con archivos reales (compras_hotel.csv + habitacion_ocupacion.csv) devuelve n_aplicados > 0 (13 con ambos archivos, 6 con solo compras — verificado por curl), senales_agora contiene claves 'compras' y 'actividad' con valores promediados AG3, origen 'coordenadas preparadas por AG3', y el bundle KPIs sigue presente. (c) GET /api/agora/historial/hotel refleja las corridas (corridas>0, última con origen 'cucurucho'). (d) Regresión: GET /api/agora/dominios (7), GET /api/agora/dominio/hotel (housekeeping+food_beverage+maintenance+demo_entradas), POST /api/agora/triangular manual (plano=3), POST /api/flujo/ejecutar (mezcal) sin agora.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_cucurucho_embudo.py", "/app/test_reports/pytest/pytest_cucurucho.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "cucurucho_embudo.py::preparar_agora captura solo (FileNotFoundError, KeyError, ValueError) y devuelve None silenciosamente; cualquier otra excepción (p.ej. sqlite lock en _ag.triangular guardar=True) podría propagarse y romper /flujo/ejecutar-dominio. Considera un except Exception con log/warning y retornar None para no comprometer el bundle KPIs — 'cambio puntual' aceptable dado que agora es aditivo.",
+    "_senales_agora usa np.mean sin filtrar NaN/negativos; si un CSV real trae celdas vacías el promedio puede quedar NaN y romper la triangulación. Sugerido: usar np.nanmean y filtrar no-numéricos en _extraer_columnas (si no lo hace ya).",
+    "El origen en agora_conector se guarda con el prefijo 'Cucurucho ·'; asegurar consistencia si en el futuro se ingresa por otras rutas (ej. /api/agora/triangular manual) — hoy conviven ambos; ok."
+  ],
+  "updated_files": ["/app/backend/tests/test_cucurucho_embudo.py"],
+  "success_rate": {"backend": "100% (12/12)", "frontend": "N/A (skipped por request)"},
+  "test_credentials": "N/A — app local sin auth",
+  "seed_data_creation": "Los tests suben CSVs en memoria (compras_hotel.csv, habitacion_ocupacion.csv) y provocan escrituras en el historial del Ágora (SQLite). No hay teardown explícito porque los datos son parte del histórico esperado del embudo; el test de historial solo verifica >0 corridas y que la última tenga origen 'cucurucho', por lo que sucesivas ejecuciones son idempotentes.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Feature 'Cucurucho embudo único' probada. Endpoint clave: POST /api/flujo/ejecutar-dominio (Form: domain_id, modo, calibrar, files[]) — ahora devuelve además 'agora' con preparacion{dominio_agora, senales_agora, observables_aplicados, n_aplicados}, plano, n_alertas, origen. Detección de categoría es por nombre de archivo (keywords en cucurucho_{sector}_v1.json:mapa_agora.categorias_operacion.*.keywords). Para hotel: 'compras'/'insumo'/'material'/'proveedor' -> compras; 'habitacion'/'ocupa'/'cubierto'/'orden'/'atendid'/'camarista'/'cocina'/'checkin' -> actividad. Con ambos archivos: n_aplicados=13. Gobierno solo existe en /api/agora/dominios (7 total) pero NO en /api/flujo/dominios (6) por diseño.",
+  "rca of the issue": "N/A — no bugs found."
+}

@@ -414,5 +414,89 @@
         "quejas": 9
       }
     }
+  },
+  "mapa_agora": {
+    "dominio_agora": "restaurante",
+    "categorias_operacion": {
+      "compras": {
+        "keywords": [
+          "compra",
+          "insumo",
+          "bebida",
+          "proveedor"
+        ],
+        "columnas_esperadas": [
+          "insumo_comprado",
+          "bebidas_compradas",
+          "concentracion_proveedor"
+        ]
+      },
+      "actividad": {
+        "keywords": [
+          "cubierto",
+          "servicio",
+          "mesa",
+          "cliente",
+          "hora",
+          "conteo",
+          "inventario",
+          "merma",
+          "barra",
+          "salon"
+        ],
+        "columnas_esperadas": [
+          "cubiertos_servidos",
+          "horas_cocina",
+          "servicios_barra",
+          "horas_bar",
+          "mesas_ocupadas",
+          "mesas_servidas",
+          "horas_salon",
+          "clientes_atendidos",
+          "inventario_declarado",
+          "conteo_fisico",
+          "patron_acceso",
+          "merma_reportada"
+        ]
+      },
+      "dinero": {
+        "keywords": [
+          "69b",
+          "sat",
+          "gamma"
+        ],
+        "columnas_esperadas": [
+          "y_senal",
+          "y_gamma"
+        ]
+      }
+    },
+    "columnas": {
+      "cocina": {
+        "insumo_comprado": "compras.insumo_comprado",
+        "cubiertos_servidos": "actividad.cubiertos_servidos",
+        "concentracion_proveedor": "compras.concentracion_proveedor",
+        "horas_cocina": "actividad.horas_cocina",
+        "merma_reportada": "actividad.merma_reportada"
+      },
+      "barra": {
+        "bebidas_compradas": "compras.bebidas_compradas",
+        "servicios_barra": "actividad.servicios_barra",
+        "concentracion_proveedor": "compras.concentracion_proveedor",
+        "horas_bar": "actividad.horas_bar"
+      },
+      "salon": {
+        "mesas_ocupadas": "actividad.mesas_ocupadas",
+        "mesas_servidas": "actividad.mesas_servidas",
+        "horas_salon": "actividad.horas_salon",
+        "clientes_atendidos": "actividad.clientes_atendidos"
+      },
+      "almacen_restaurante": {
+        "inventario_declarado": "actividad.inventario_declarado",
+        "conteo_fisico": "actividad.conteo_fisico",
+        "patron_acceso": "actividad.patron_acceso",
+        "merma_reportada": "actividad.merma_reportada"
+      }
+    }
   }
 }

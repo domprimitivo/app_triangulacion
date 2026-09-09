@@ -411,5 +411,84 @@
         "conversion_directa": 0.4
       }
     }
+  },
+  "mapa_agora": {
+    "dominio_agora": "hotel",
+    "categorias_operacion": {
+      "compras": {
+        "keywords": [
+          "compra",
+          "insumo",
+          "material",
+          "proveedor"
+        ],
+        "columnas_esperadas": [
+          "insumo_comprado",
+          "material_comprado",
+          "concentracion_proveedor"
+        ]
+      },
+      "actividad": {
+        "keywords": [
+          "habitacion",
+          "ocupa",
+          "cubierto",
+          "orden",
+          "atendid",
+          "camarista",
+          "cocina",
+          "checkin"
+        ],
+        "columnas_esperadas": [
+          "habitacion_noche",
+          "habitaciones_atendidas",
+          "horas_camarista",
+          "cubiertos_servidos",
+          "horas_cocina",
+          "ordenes_cerradas",
+          "backlog_ordenes"
+        ]
+      },
+      "dinero": {
+        "keywords": [
+          "69b",
+          "sat",
+          "gamma",
+          "bandera",
+          "sobreprecio"
+        ],
+        "columnas_esperadas": [
+          "y_senal",
+          "y_gamma"
+        ]
+      }
+    },
+    "columnas": {
+      "housekeeping": {
+        "insumo_comprado": "compras.insumo_comprado",
+        "habitacion_noche": "actividad.habitacion_noche",
+        "concentracion_proveedor": "compras.concentracion_proveedor",
+        "habitaciones_atendidas": "actividad.habitaciones_atendidas",
+        "horas_camarista": "actividad.horas_camarista",
+        "y_senal": "dinero.y_senal",
+        "y_gamma": "dinero.y_gamma"
+      },
+      "food_beverage": {
+        "insumo_comprado": "compras.insumo_comprado",
+        "cubiertos_servidos": "actividad.cubiertos_servidos",
+        "concentracion_proveedor": "compras.concentracion_proveedor",
+        "horas_cocina": "actividad.horas_cocina",
+        "y_senal": "dinero.y_senal",
+        "y_gamma": "dinero.y_gamma"
+      },
+      "maintenance": {
+        "material_comprado": "compras.material_comprado",
+        "ordenes_cerradas": "actividad.ordenes_cerradas",
+        "concentracion_proveedor": "compras.concentracion_proveedor",
+        "backlog_ordenes": "actividad.backlog_ordenes",
+        "y_senal": "dinero.y_senal",
+        "y_gamma": "dinero.y_gamma"
+      }
+    }
   }
 }

@@ -412,5 +412,99 @@
         "satisfaccion": 0.72
       }
     }
+  },
+  "mapa_agora": {
+    "dominio_agora": "fabrica",
+    "categorias_operacion": {
+      "produccion": {
+        "keywords": [
+          "produc",
+          "unidad",
+          "capacidad",
+          "linea",
+          "yield",
+          "buffer",
+          "carga"
+        ],
+        "columnas_esperadas": [
+          "unidades_producidas",
+          "unidades_buenas",
+          "capacidad",
+          "horas_linea",
+          "yield_calidad",
+          "buffer_salud",
+          "carga_relativa_produccion"
+        ]
+      },
+      "calidad": {
+        "keywords": [
+          "calidad",
+          "falla",
+          "campo",
+          "defecto"
+        ],
+        "columnas_esperadas": [
+          "calidad_declarada",
+          "tasa_falla_campo"
+        ]
+      },
+      "mantenimiento": {
+        "keywords": [
+          "mantenimiento",
+          "backlog",
+          "orden",
+          "maquina",
+          "cierre"
+        ],
+        "columnas_esperadas": [
+          "backlog_ordenes",
+          "ordenes_cerradas",
+          "estado_maquina"
+        ]
+      },
+      "coherencia": {
+        "keywords": [
+          "coherencia",
+          "clima",
+          "escucha",
+          "disciplina"
+        ],
+        "columnas_esperadas": [
+          "coherencia"
+        ]
+      }
+    },
+    "columnas": {
+      "production": {
+        "unidades_producidas": "produccion.unidades_producidas",
+        "unidades_buenas": "produccion.unidades_buenas",
+        "capacidad": "produccion.capacidad",
+        "horas_linea": "produccion.horas_linea",
+        "yield_calidad": "produccion.yield_calidad",
+        "buffer_salud": "produccion.buffer_salud"
+      },
+      "quality": {
+        "calidad_declarada": "calidad.calidad_declarada",
+        "tasa_falla_campo": "calidad.tasa_falla_campo",
+        "unidades_buenas": "produccion.unidades_buenas",
+        "unidades_producidas": "produccion.unidades_producidas",
+        "carga_relativa_produccion": "produccion.carga_relativa_produccion"
+      },
+      "maintenance": {
+        "backlog_ordenes": "mantenimiento.backlog_ordenes",
+        "ordenes_cerradas": "mantenimiento.ordenes_cerradas",
+        "estado_maquina": "mantenimiento.estado_maquina",
+        "carga_relativa_produccion": "produccion.carga_relativa_produccion"
+      },
+      "line_load": {
+        "coherencia": "coherencia.coherencia"
+      },
+      "quality_discipline": {
+        "coherencia": "coherencia.coherencia"
+      },
+      "maintenance_coherence": {
+        "coherencia": "coherencia.coherencia"
+      }
+    }
   }
 }

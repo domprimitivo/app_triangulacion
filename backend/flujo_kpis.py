@@ -415,6 +415,15 @@ def ejecutar_flujo_dominio(domain_id: str, archivos: List[dict], modo: str = "AS
         "trayectoria": resultado_lazo["geodesica_sugerida"]["nombre"],
     })
 
+    # Embudo único: la MISMA ingesta prepara EN PARALELO las coordenadas del Ágora.
+    # No reemplaza nada; solo AÑADE lo que el Ágora necesita. Import perezoso (evita ciclo).
+    agora = None
+    try:
+        from cucurucho_embudo import preparar_agora
+        agora = preparar_agora(domain_id, archivos, guardar=True)
+    except Exception:
+        agora = None
+
     return {
         "cliente": {"client_id": domain_id, "client_name": dominio["descriptor"],
                     "active_subscription": True, "overrides": {}},
@@ -429,6 +438,7 @@ def ejecutar_flujo_dominio(domain_id: str, archivos: List[dict], modo: str = "AS
         "memoria": memoria,
         "historial": listar_memoria(domain_id),
         "lazo": resultado_lazo,
+        "agora": agora,
     }
 
 

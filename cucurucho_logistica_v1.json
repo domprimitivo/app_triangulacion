@@ -409,5 +409,98 @@
         "satisfaccion": 0.75
       }
     }
+  },
+  "mapa_agora": {
+    "dominio_agora": "logistica",
+    "categorias_operacion": {
+      "operacion": {
+        "keywords": [
+          "entrega",
+          "gps",
+          "firma",
+          "ruta",
+          "vehiculo",
+          "km",
+          "kilometro",
+          "tiempo"
+        ],
+        "columnas_esperadas": [
+          "entregas_reportadas",
+          "entregas_gps",
+          "firmas_cliente",
+          "horas_ruta",
+          "vehiculos_activos",
+          "kilometros_recorridos",
+          "tiempo_ruta_real",
+          "tiempo_ruta_esperado",
+          "vehiculos_asignados",
+          "entregas_realizadas"
+        ]
+      },
+      "compras": {
+        "keywords": [
+          "combustible",
+          "mantenimiento",
+          "proveedor",
+          "falla"
+        ],
+        "columnas_esperadas": [
+          "combustible_comprado",
+          "combustible_esperado",
+          "concentracion_proveedor",
+          "mantenimiento_reportado",
+          "mantenimiento_esperado",
+          "fallas_vehiculo"
+        ]
+      },
+      "inventario": {
+        "keywords": [
+          "inventario",
+          "conteo",
+          "merma",
+          "acceso",
+          "almacen"
+        ],
+        "columnas_esperadas": [
+          "inventario_declarado",
+          "conteo_fisico",
+          "patron_acceso",
+          "merma_reportada"
+        ]
+      }
+    },
+    "columnas": {
+      "entregas": {
+        "entregas_reportadas": "operacion.entregas_reportadas",
+        "entregas_gps": "operacion.entregas_gps",
+        "firmas_cliente": "operacion.firmas_cliente",
+        "horas_ruta": "operacion.horas_ruta",
+        "vehiculos_activos": "operacion.vehiculos_activos"
+      },
+      "combustible": {
+        "combustible_comprado": "compras.combustible_comprado",
+        "kilometros_recorridos": "operacion.kilometros_recorridos",
+        "combustible_esperado": "compras.combustible_esperado",
+        "concentracion_proveedor": "compras.concentracion_proveedor"
+      },
+      "mantenimiento_vehiculos": {
+        "mantenimiento_reportado": "compras.mantenimiento_reportado",
+        "kilometros_recorridos": "operacion.kilometros_recorridos",
+        "mantenimiento_esperado": "compras.mantenimiento_esperado",
+        "fallas_vehiculo": "compras.fallas_vehiculo"
+      },
+      "rutas_operacion": {
+        "tiempo_ruta_real": "operacion.tiempo_ruta_real",
+        "tiempo_ruta_esperado": "operacion.tiempo_ruta_esperado",
+        "vehiculos_asignados": "operacion.vehiculos_asignados",
+        "entregas_realizadas": "operacion.entregas_realizadas"
+      },
+      "almacen_logistica": {
+        "inventario_declarado": "inventario.inventario_declarado",
+        "conteo_fisico": "inventario.conteo_fisico",
+        "patron_acceso": "inventario.patron_acceso",
+        "merma_reportada": "inventario.merma_reportada"
+      }
+    }
   }
 }

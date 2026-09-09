@@ -1,0 +1,96 @@
+{
+  "id_config": "cucurucho_gobierno_v1",
+  "version": "1.0.0",
+  "descripcion": "Perfil Cucurucho para entidad de gobierno: fraude/flujo de dinero público. Prepara EN PARALELO las métricas holográficas y las coordenadas del Ágora (agua, nómina, catastro) contra la señal de dinero (marcador 69-B).",
+  "sector": "gobierno",
+  "dimensiones_operativas": ["gasto", "activo", "dinero", "personas", "infraestructura"],
+  "campos_prudenciales": {
+    "T": {"nombre": "Tension", "peso_global": 0.33, "descripcion": "Presión sobre el manejo del dinero público."},
+    "K": {"nombre": "Coherencia", "peso_global": 0.22, "descripcion": "Alineación entre gasto declarado y realidad física."},
+    "R": {"nombre": "Resiliencia", "peso_global": 0.22, "descripcion": "Capacidad de absorber shocks sin desvío."},
+    "IT": {"nombre": "Indice_Telos", "peso_global": 0.23, "descripcion": "Alineación con el propósito público declarado."}
+  },
+  "umbrales_campos": {
+    "T": {"alerta_suave": 0.66, "alerta_dura": 0.82},
+    "K": {"alerta_suave": 0.4, "alerta_dura": 0.25},
+    "R": {"alerta_suave": 0.45, "alerta_dura": 0.3},
+    "IT": {"alerta_suave": 0.55, "alerta_dura": 0.35}
+  },
+  "agentes_core": {
+    "AG0_orquestador": {"activo": true},
+    "AG1_cartografo": {"activo": true, "intensidad_descubrimiento": "media"},
+    "AG2_ontologo": {"activo": true, "modo": "public_sector"},
+    "AG3_limpiador": {"activo": true, "nivel_estrictez": "alta"},
+    "AG4_reconciliador": {"activo": true, "modo": "fuerte"},
+    "AG5_ingeniero_features": {"activo": true, "perfil_features": "public_money"},
+    "AG6_observador_tensiones": {"activo": true, "sensibilidad": "alta"},
+    "AG7_narrador_telos": {"activo": true, "plantilla_narrativa_base": "gobierno"},
+    "AG8_guardian_etico": {"activo": true, "modo": "transparencia_plus"}
+  },
+  "mapa_metricas": {
+    "categorias_operacion": {
+      "gasto_agua": {"keywords": ["agua", "volumen", "energia", "kwh", "bombeo"],
+                     "columnas_esperadas": ["volumen_extraido_m3", "energia_kwh"]},
+      "nomina": {"keywords": ["nomina", "plaza", "servicio", "asistencia", "cuenta"],
+                 "columnas_esperadas": ["plazas_pagadas", "servicio_real", "asistencia_fte", "cuentas_distintas"]},
+      "activo": {"keywords": ["catastro", "valor", "mercado", "ingreso", "predio"],
+                 "columnas_esperadas": ["valor_mercado", "ingreso_declarado"]},
+      "dinero": {"keywords": ["69b", "sat", "proveedor", "gamma", "bandera"],
+                 "columnas_esperadas": ["y_senal", "y_gamma", "concentracion_proveedor"]}
+    },
+    "kpi_map": {
+      "Permeabilidad": [
+        {"signal": "nomina.servicio_real", "norm": [0, 100], "peso": 0.6},
+        {"signal": "gasto_agua.volumen_extraido_m3", "norm": [0, 5000], "peso": 0.4}
+      ],
+      "Tensión TR": [
+        {"signal": "dinero.concentracion_proveedor", "norm": [0, 1], "peso": 0.5},
+        {"signal": "nomina.cuentas_distintas", "norm": [0, 50], "peso": 0.5}
+      ],
+      "Sutura": [
+        {"signal": "nomina.asistencia_fte", "norm": [0, 1], "peso": 1.0}
+      ],
+      "Retorno al Suelo": [
+        {"signal": "activo.ingreso_declarado", "norm": [0, 1000000], "peso": 0.6},
+        {"signal": "activo.valor_mercado", "norm": [0, 5000000], "peso": 0.4}
+      ],
+      "Estancamiento": [
+        {"signal": "gasto_agua.energia_kwh", "norm": [0, 3000], "peso": 1.0}
+      ],
+      "Ruptura de Fase": [
+        {"signal": "dinero.y_senal", "norm": [0, 1], "peso": 1.0}
+      ],
+      "Resonancia": [
+        {"signal": "nomina.servicio_real", "norm": [0, 100], "peso": 1.0}
+      ]
+    },
+    "demo_operacion": {
+      "gasto_agua": {"volumen_extraido_m3": 2222.0, "energia_kwh": 1000.0},
+      "nomina": {"plazas_pagadas": 120.0, "servicio_real": 3000.0, "asistencia_fte": 0.7, "cuentas_distintas": 8.0},
+      "activo": {"valor_mercado": 1000.0, "ingreso_declarado": 700.0},
+      "dinero": {"y_senal": 0.6, "y_gamma": 0.5, "concentracion_proveedor": 0.5}
+    }
+  },
+  "mapa_agora": {
+    "dominio_agora": "gobierno",
+    "categorias_operacion": {
+      "gasto_agua": {"keywords": ["agua", "volumen", "energia", "kwh", "bombeo"],
+                     "columnas_esperadas": ["volumen_extraido_m3", "energia_kwh"]},
+      "nomina": {"keywords": ["nomina", "plaza", "servicio", "asistencia", "cuenta"],
+                 "columnas_esperadas": ["plazas_pagadas", "servicio_real", "asistencia_fte", "cuentas_distintas", "concentracion_cuentas"]},
+      "activo": {"keywords": ["catastro", "valor", "mercado", "ingreso", "predio"],
+                 "columnas_esperadas": ["valor_mercado", "ingreso_declarado"]},
+      "dinero": {"keywords": ["69b", "sat", "proveedor", "gamma", "bandera"],
+                 "columnas_esperadas": ["y_senal", "y_gamma"]}
+    },
+    "columnas": {
+      "agua": {"volumen_extraido_m3": "gasto_agua.volumen_extraido_m3", "energia_kwh": "gasto_agua.energia_kwh",
+               "y_senal": "dinero.y_senal", "y_gamma": "dinero.y_gamma"},
+      "nomina": {"plazas_pagadas": "nomina.plazas_pagadas", "servicio_real": "nomina.servicio_real",
+                 "asistencia_fte": "nomina.asistencia_fte", "cuentas_distintas": "nomina.cuentas_distintas",
+                 "y_senal": "dinero.y_senal", "y_gamma": "dinero.y_gamma"},
+      "catastro": {"valor_mercado": "activo.valor_mercado", "ingreso_declarado": "activo.ingreso_declarado",
+                   "y_senal": "dinero.y_senal", "y_gamma": "dinero.y_gamma"}
+    }
+  }
+}

@@ -412,5 +412,111 @@
         "quejas": 7
       }
     }
+  },
+  "mapa_agora": {
+    "dominio_agora": "retail",
+    "categorias_operacion": {
+      "ventas": {
+        "keywords": [
+          "venta",
+          "ticket",
+          "caja",
+          "factura",
+          "cliente",
+          "unidad"
+        ],
+        "columnas_esperadas": [
+          "tickets_reportados",
+          "unidades_vendidas",
+          "monto_facturado",
+          "horas_caja",
+          "clientes_atendidos",
+          "ventas_totales"
+        ]
+      },
+      "inventario": {
+        "keywords": [
+          "inventario",
+          "conteo",
+          "merma",
+          "stock",
+          "rotacion",
+          "acceso"
+        ],
+        "columnas_esperadas": [
+          "inventario_declarado",
+          "conteo_fisico",
+          "patron_acceso",
+          "merma_reportada",
+          "rotacion_esperada",
+          "stock_final",
+          "stock_critico"
+        ]
+      },
+      "compras": {
+        "keywords": [
+          "compra",
+          "proveedor",
+          "producto",
+          "reposicion",
+          "almacen",
+          "orden"
+        ],
+        "columnas_esperadas": [
+          "producto_comprado",
+          "concentracion_proveedor",
+          "producto_repuesto",
+          "horas_almacen",
+          "ordenes_reposicion"
+        ]
+      },
+      "devol": {
+        "keywords": [
+          "devol",
+          "return",
+          "motivo",
+          "afectado"
+        ],
+        "columnas_esperadas": [
+          "devoluciones_reportadas",
+          "motivos_devolucion",
+          "clientes_afectados"
+        ]
+      }
+    },
+    "columnas": {
+      "ventas_caja": {
+        "tickets_reportados": "ventas.tickets_reportados",
+        "unidades_vendidas": "ventas.unidades_vendidas",
+        "monto_facturado": "ventas.monto_facturado",
+        "horas_caja": "ventas.horas_caja",
+        "clientes_atendidos": "ventas.clientes_atendidos"
+      },
+      "inventario_retail": {
+        "inventario_declarado": "inventario.inventario_declarado",
+        "conteo_fisico": "inventario.conteo_fisico",
+        "patron_acceso": "inventario.patron_acceso",
+        "merma_reportada": "inventario.merma_reportada",
+        "rotacion_esperada": "inventario.rotacion_esperada"
+      },
+      "compras_retail": {
+        "producto_comprado": "compras.producto_comprado",
+        "unidades_vendidas": "ventas.unidades_vendidas",
+        "concentracion_proveedor": "compras.concentracion_proveedor",
+        "stock_final": "inventario.stock_final"
+      },
+      "devoluciones": {
+        "devoluciones_reportadas": "devol.devoluciones_reportadas",
+        "ventas_totales": "ventas.ventas_totales",
+        "motivos_devolucion": "devol.motivos_devolucion",
+        "clientes_afectados": "devol.clientes_afectados"
+      },
+      "reposicion": {
+        "producto_repuesto": "compras.producto_repuesto",
+        "horas_almacen": "compras.horas_almacen",
+        "stock_critico": "inventario.stock_critico",
+        "ordenes_reposicion": "compras.ordenes_reposicion"
+      }
+    }
   }
 }
