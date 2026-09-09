@@ -1,0 +1,21 @@
+{
+  "summary": "Backend-only verification of Aprendiz Bimestral Ajuste (port del notebook v0.1) + scheduler. 7/7 pytest cases pass covering: estado con dominio 'hotel' y base 2026-09-02, ejecución completa con entrenamiento real PyTorch (samples>0, reemplazo in-place con .bak, sha256 cambia, adapter incluido), validez del bundle activo modificado (policy_adapter.pt + policy_meta.json + allowed_actions_by_phase.json presentes, phase_rnn_state_dict.pt preservado, BundleLoader._cargado=True), historial con entrenado=1, caso datos insuficientes (motivo devuelto, sin excepción), y unit tests del scheduler (periodo_actual/ventana_periodo/fecha_proximo_ajuste + idempotencia de _tick).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_bimestral_ajuste.py", "/app/test_reports/pytest/pytest_bimestral.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py sigue en ~2180 líneas — recomendable extraer módulo `bimestral_ajuste_router.py` (endpoints + helpers _activacion_base_date/_ultimo_period_index/_registrar_ajuste_run) al mismo nivel que agora/ingesta.",
+    "aprendiz_motor/bimestral_ajuste.py: `_reemplazar_policy_in_place` no valida que el zip resultante contenga backbone; si el bundle semilla estuviese corrupto, el reemplazo lo propagaría (sha256_previo se registra pero no se hace verificación estructural post-reemplazo). Considera un sanity-check (ZipFile.testzip + presencia de phase_rnn_state_dict.pt) antes del os.replace.",
+    "scheduler.ProgramadorBimestral no persiste last_tick_at → sin observabilidad si el hilo se detuvo. Considera loggear/registrar en tabla el último chequeo.",
+    "En estado_ajuste_bimestral el cálculo de `dias_para_proximo_ajuste` usa `.days` (piso), lo cual puede reportar 1 día menos cuando la diferencia es fraccional; documentado (test tolera ±1)."
+  ],
+  "updated_files": ["/app/backend/tests/test_bimestral_ajuste.py"],
+  "success_rate": {"backend": "100% (7/7)", "frontend": "N/A (skipped por request)"},
+  "test_credentials": "N/A — app 100% local sin auth",
+  "seed_data_creation": "Datos sintéticos (contador_learning_log.jsonl + contador_action_dictionary_state.json, 40 eventos en últimos 50 días) creados y ELIMINADOS por la fixture module-scope autouse `_global_cleanup`. También se limpian /app/backend/aprendiz_motor/modelos/*.zip + .bak_*, /app/backend/aprendiz_data/ajustes/{contador,consultor_pyme}, y filas de la tabla ajuste_bimestral_runs. Verificado post-run: modelos/ vacío, ajustes/ vacío, count=0 en tabla.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Endpoints: GET /api/bimestral/ajuste/estado, POST /api/bimestral/{dominio}/ajuste/ejecutar, GET /api/bimestral/{dominio}/ajuste/historial. Dominio del activador = 'hotel' (base emitido_en=2026-09-02, periodo_vigente=0 → próximo = base+50d). Para entrenamiento manual, sembrar {dom}_learning_log.jsonl (>=8 samples, >=2 action_id distintos DENTRO de allowlist) y {dom}_action_dictionary_state.json con actions_by_phase; luego POST /ajuste/ejecutar. El bundle activo vive en /app/backend/aprendiz_motor/modelos/{bundle}.zip y se siembra automáticamente desde /app/*.zip la primera vez. Tras cada ejecución queda un {bundle}.bak_<ts>.zip. La fixture del test limpia todo (deja repo limpio).",
+  "rca of the issue": "N/A — no bugs found."
+}

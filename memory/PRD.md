@@ -214,3 +214,22 @@ de un panel empresa-céntrico**, alimentada por los 3 flujos, no como ruta aisla
 - Confiabilidad: 100% local/heurística (esperado por soberanía) — falta OK explícito.
 - Panel integral: pantalla nueva vs. integrarlo en `/ciberseguridad`.
 - Pantalla de inicialización: sigue en el exe Flutter (no en este React); aquí solo tocamos "empresas".
+
+---
+
+## Actualización 2026-09-09 — Ajuste Bimestral Automático (Feature Aprendiz)
+
+**Objetivo:** Portar la lógica del notebook `Mileforum_Aprendiz_Ajuste_Bimestral_v0_1.ipynb` (fine-tune del PolicyAdapter) al backend y ejecutarla automáticamente cada 50 días desde la activación del cliente. El modelo ajustado reemplaza al original en su lugar dentro del bundle activo.
+
+**Implementado:**
+- `aprendiz_motor/bimestral_ajuste.py`: port fiel del notebook (carga bundle, learning_log en ventana, samples con pesos prudenciales, catálogo+allowlist por fase, entrenamiento PolicyAdapter con PyTorch CPU, artefactos + reporte). `_reemplazar_policy_in_place()` inyecta `policy/{policy_adapter.pt, allowed_actions_by_phase.json, policy_meta.json}` dentro del bundle activo, con respaldo `.bak` y sanity-check estructural (testzip + backbone) antes del reemplazo atómico.
+- `aprendiz_motor/scheduler.py`: `ProgramadorBimestral` (APScheduler BackgroundScheduler) que corre cada 6h y dispara el ajuste del período de 50 días pendiente desde `emitido_en` del activador. Soporta catch-up e idempotencia por `period_index`.
+- `server.py`: tabla `ajuste_bimestral_runs`; endpoints `GET /api/bimestral/ajuste/estado`, `POST /api/bimestral/{dominio}/ajuste/ejecutar`, `GET /api/bimestral/{dominio}/ajuste/historial`; arranque del scheduler en startup.
+- Dependencias añadidas: `torch` (CPU), `apscheduler`.
+
+**Verificado:** 7/7 pruebas backend (testing agent, iteration_11) — estado, ejecución con entrenamiento real + reemplazo in-place + respaldo + integridad de bundle, historial, caso datos insuficientes, y lógica del scheduler.
+
+**Backlog / Próximos:**
+- Extraer endpoints bimestral a un router propio (server.py grande).
+- Persistir `last_tick_at` del scheduler para observabilidad.
+- UI en Flutter/React para mostrar estado del próximo ajuste y disparo manual.

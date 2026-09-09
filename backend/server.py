@@ -143,6 +143,20 @@ def init_sqlite():
                 incorporado_at  TEXT
             );
 
+            CREATE TABLE IF NOT EXISTS ajuste_bimestral_runs (
+                run_id        TEXT PRIMARY KEY,
+                dominio       TEXT NOT NULL,
+                period_index  INTEGER,
+                disparado_por TEXT,
+                ejecutado_at  TEXT,
+                entrenado     INTEGER DEFAULT 0,
+                window_start  TEXT,
+                window_end    TEXT,
+                report_json   TEXT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_ajuste_dominio ON ajuste_bimestral_runs(dominio, period_index);
+
             CREATE INDEX IF NOT EXISTS idx_documentos_expediente ON documentos(expediente_id);
             CREATE INDEX IF NOT EXISTS idx_aprendiz_events_dominio ON aprendiz_events(dominio, timestamp);
 
@@ -1367,6 +1381,160 @@ async def incorporar_artefactos_notebook(dominio: str, file: UploadFile = File(.
     }
 
 
+# ─── Ajuste Bimestral automático (port del Notebook) ─────────────────────────
+#
+# Ejecuta el ajuste de policy (fine-tune del PolicyAdapter) portado del
+# notebook `Mileforum_Aprendiz_Ajuste_Bimestral_v0_1.ipynb` de forma
+# automática cada 50 días desde la activación del cliente. El modelo ajustado
+# reemplaza al original en su lugar dentro del bundle activo.
+
+from aprendiz_motor.bimestral_ajuste import ejecutar_ajuste_bimestral
+from aprendiz_motor.scheduler import (
+    ProgramadorBimestral, periodo_actual, fecha_proximo_ajuste, PERIODO_DIAS,
+)
+
+
+def _activacion_base_date() -> Optional[datetime]:
+    """Fecha base para el conteo de 50 días: `emitido_en` del activador."""
+    if not ACTIVACION_PATH.exists():
+        return None
+    try:
+        with open(ACTIVACION_PATH, "r", encoding="utf-8") as f:
+            act = json.load(f)
+        emitido = act.get("emitido_en")
+        if not emitido:
+            return None
+        base = datetime.fromisoformat(emitido.replace("Z", "+00:00"))
+        if base.tzinfo is None:
+            base = base.replace(tzinfo=timezone.utc)
+        return base
+    except Exception:
+        return None
+
+
+def _dominio_activo_para_ajuste() -> Optional[str]:
+    """Dominio objetivo del ajuste: el configurado, o el del activador."""
+    config = load_config()
+    if config.get("configurado") and config.get("dominio_id"):
+        return config["dominio_id"]
+    if ACTIVACION_PATH.exists():
+        try:
+            with open(ACTIVACION_PATH, "r", encoding="utf-8") as f:
+                return json.load(f).get("dominio_id")
+        except Exception:
+            return None
+    return None
+
+
+def _ultimo_period_index(dominio: str) -> int:
+    row = db_query_one(
+        "SELECT MAX(period_index) AS m FROM ajuste_bimestral_runs WHERE dominio = ? AND period_index IS NOT NULL",
+        (dominio,)
+    )
+    if row and row["m"] is not None:
+        return int(row["m"])
+    return 0
+
+
+def _registrar_ajuste_run(report: dict):
+    training = report.get("training", {}) or {}
+    tw = report.get("time_window", {}) or {}
+    db_execute(
+        """INSERT OR REPLACE INTO ajuste_bimestral_runs
+           (run_id, dominio, period_index, disparado_por, ejecutado_at,
+            entrenado, window_start, window_end, report_json)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (report.get("run_id"), report.get("dominio"), report.get("period_index"),
+         report.get("disparado_por"), report.get("ejecutado_at"),
+         1 if training.get("entrenado") else 0,
+         tw.get("start"), tw.get("end"),
+         json.dumps(report, ensure_ascii=False))
+    )
+
+
+def _ejecutar_y_registrar_ajuste(dominio: str,
+                                 period_index: Optional[int] = None,
+                                 window_start: Optional[datetime] = None,
+                                 window_end: Optional[datetime] = None,
+                                 disparado_por: str = "manual") -> dict:
+    report = ejecutar_ajuste_bimestral(
+        dominio=dominio, root_dir=ROOT_DIR,
+        window_start=window_start, window_end=window_end,
+        period_index=period_index, disparado_por=disparado_por,
+    )
+    _registrar_ajuste_run(report)
+    return report
+
+
+# Instancia global del programador (se inicia en startup)
+_programador_bimestral: Optional[ProgramadorBimestral] = None
+
+
+@api_router.get("/bimestral/ajuste/estado")
+async def estado_ajuste_bimestral():
+    """
+    Estado del ajuste bimestral automático: fecha base (activación), dominio
+    objetivo, período vigente, último ajuste ejecutado y fecha del próximo.
+    """
+    base = _activacion_base_date()
+    dominio = _dominio_activo_para_ajuste()
+    ahora = datetime.now(timezone.utc)
+
+    if not base:
+        return {
+            "programado": False,
+            "mensaje": "No hay activador con fecha de emisión; el ajuste bimestral no está programado.",
+            "periodo_dias": PERIODO_DIAS,
+        }
+
+    ultimo_indice = _ultimo_period_index(dominio) if dominio else 0
+    proxima = fecha_proximo_ajuste(base, ultimo_indice, ahora)
+    dias_restantes = (proxima - ahora).days
+
+    ultimo_row = None
+    if dominio:
+        ultimo_row = db_query_one(
+            "SELECT run_id, period_index, ejecutado_at, entrenado FROM ajuste_bimestral_runs WHERE dominio = ? ORDER BY ejecutado_at DESC LIMIT 1",
+            (dominio,)
+        )
+
+    return {
+        "programado": True,
+        "periodo_dias": PERIODO_DIAS,
+        "dominio": dominio,
+        "activacion_base": base.isoformat(),
+        "periodo_vigente": periodo_actual(base, ahora),
+        "ultimo_period_index_ejecutado": ultimo_indice,
+        "proximo_ajuste": proxima.isoformat(),
+        "dias_para_proximo_ajuste": dias_restantes,
+        "ultimo_run": row_to_dict(ultimo_row) if ultimo_row else None,
+    }
+
+
+@api_router.post("/bimestral/{dominio}/ajuste/ejecutar")
+async def ejecutar_ajuste_manual(dominio: str):
+    """
+    Dispara manualmente el ajuste bimestral para un dominio (útil para
+    verificación). Usa la ventana de los últimos 50 días.
+    """
+    report = _ejecutar_y_registrar_ajuste(dominio=dominio, disparado_por="manual")
+    return {"status": "ejecutado", "report": report}
+
+
+@api_router.get("/bimestral/{dominio}/ajuste/historial")
+async def historial_ajuste_bimestral(dominio: str, limit: int = 20):
+    """Historial de ajustes bimestrales ejecutados para un dominio."""
+    rows = db_query(
+        """SELECT run_id, period_index, disparado_por, ejecutado_at, entrenado,
+                  window_start, window_end
+           FROM ajuste_bimestral_runs WHERE dominio = ?
+           ORDER BY ejecutado_at DESC LIMIT ?""",
+        (dominio, limit)
+    )
+    return {"dominio": dominio, "total": len(rows),
+            "runs": [row_to_dict(r) for r in rows]}
+
+
 # ─── Ingesta en tiempo real — Webhook (Fase 2) ───────────────────────────────
 
 class WebhookPayload(BaseModel):
@@ -1951,18 +2119,30 @@ logger = logging.getLogger(__name__)
 @app.on_event("startup")
 async def startup_inicializar_motor():
     """
-    Al arrancar el servidor, si ya existe una configuracion guardada
-    (config.json con configurado=true), inicializa el motor del dominio
-    activo automaticamente.
-
-    Necesario porque el motor vive en memoria (_motor_instancia en
-    notebook_engine.py) y se pierde cada vez que el proceso se reinicia.
-    Sin esto, la app salta la pantalla de configuracion correctamente
-    pero el motor nunca se inicializa, causando RuntimeError al procesar.
+    Al arrancar el servidor: inicia el programador del ajuste bimestral
+    (siempre, incluso sin configurar) y, si ya existe configuracion guardada,
+    inicializa el motor del dominio activo automaticamente.
     """
+    # Iniciar el programador del ajuste bimestral (cada 50 días desde activación)
+    # Se hace SIEMPRE, antes de cualquier retorno temprano, para que el ajuste
+    # automático funcione aunque el sistema aún no esté configurado.
+    global _programador_bimestral
+    try:
+        if _programador_bimestral is None:
+            _programador_bimestral = ProgramadorBimestral(
+                obtener_base=_activacion_base_date,
+                obtener_dominio=_dominio_activo_para_ajuste,
+                ultimo_indice=_ultimo_period_index,
+                ejecutar=_ejecutar_y_registrar_ajuste,
+            )
+            _programador_bimestral.start()
+    except Exception as e:
+        logger.error(f"[startup] No se pudo iniciar el programador bimestral: {e}")
+
     config = load_config()
     if not config.get("configurado"):
         logger.info("[startup] Sistema sin configurar, motor no inicializado.")
+        _refrescar_activacion()
         return
 
     tipo_dominio = config.get("tipo_dominio")
@@ -1988,6 +2168,8 @@ async def startup_inicializar_motor():
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    if _programador_bimestral is not None:
+        _programador_bimestral.shutdown()
     _conn.close()
 
 
